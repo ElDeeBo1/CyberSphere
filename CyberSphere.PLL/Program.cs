@@ -31,6 +31,8 @@ namespace CyberSphere.PLL
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+            //var secretKey = builder.Configuration["JWT:SecretKey"];
+
 
             //builder.Services.AddScoped<IEmailService, EmailService>();
             //builder.Services.AddScoped<IArticleRepo,ArticleRepo>();
