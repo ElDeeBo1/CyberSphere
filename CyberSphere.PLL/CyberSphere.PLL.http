@@ -1,0 +1,6 @@
+@CyberSphere.PLL_HostAddress = http://localhost:5279
+
+GET {{CyberSphere.PLL_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
