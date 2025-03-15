@@ -31,11 +31,10 @@ namespace CyberSphere.PLL
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
-            //var secretKey = builder.Configuration["JWT:SecretKey"];
+   
 
 
-            //builder.Services.AddScoped<IEmailService, EmailService>();
-            //builder.Services.AddScoped<IArticleRepo,ArticleRepo>();
+
             builder.Services.AddScoped<IArticleRepo, ArticleRepo>();    
             builder.Services.AddScoped<IArticleService,ArticleService>();
 
@@ -77,7 +76,7 @@ namespace CyberSphere.PLL
                 options.AppId = builder.Configuration["Authentication:Facebook:AppId"];
                 options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
 
-                //options.CallbackPath = new PathString(builder.Configuration["Authentication:Facebook:Path"]);
+        
                 options.Scope.Add("email"); 
                 options.Fields.Add("email");
             }).AddGoogle(options =>
