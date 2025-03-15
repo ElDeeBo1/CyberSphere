@@ -38,6 +38,9 @@ namespace CyberSphere.PLL
             builder.Services.AddScoped<IArticleRepo, ArticleRepo>();    
             builder.Services.AddScoped<IArticleService,ArticleService>();
 
+            builder.Services.AddScoped<ILessonRepo, LessonRepo>();
+            builder.Services.AddScoped<ILessonService, LessonService>();
+
 
 
             builder.Services.AddTransient<IEmailSender, EmailService>();
