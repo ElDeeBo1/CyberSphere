@@ -68,34 +68,41 @@ namespace CyberSphere.BLL.Services.Implenentation
             var video = lessonRepo.GetLessonById(id);
             return mapper.Map<GetLessonByIdDTO>(video);
         }
-
-        public async Task<IEnumerable<GetAllLessonsByCourseIdDTO>> GetLessonsByCourseId(int courseId)
+        public  List<GetAllLessonsByCourseIdDTO> GetLessonsByCourseId(int courseId)
         {
-            var lessons = lessonRepo.GetLessonsByCourseId(courseId);
-            return    mapper.Map<IEnumerable<GetAllLessonsByCourseIdDTO>>(lessons);
-
+            var lessons =  lessonRepo.GetLessonsByCourseId(courseId);
+            var result = mapper.Map<IEnumerable<GetAllLessonsByCourseIdDTO>>(lessons);
+            return result.ToList();  
         }
+
+
+
+
 
         public UpdateLessonDTO UpdateLesson(int id, UpdateLessonDTO lesson)
         {
-            var existinglesson = lessonRepo.GetLessonById(id);
-            if (existinglesson == null)
+            var existingLesson = lessonRepo.GetLessonById(id);
+            if (existingLesson == null)
             {
                 throw new Exception("Lesson not found");
             }
-            if(! string.IsNullOrEmpty(lesson.Title))
-                existinglesson.Title = lesson.Title;
-            if(! string.IsNullOrEmpty(lesson.Description))  
-                existinglesson.Description = lesson.Description;
-            if(! string.IsNullOrEmpty(lesson.VideoURL)) 
-                existinglesson.VideoURL = lesson.VideoURL;
-            if (lesson.Order != 0)
-                existinglesson.Order = lesson.Order;
-            if (lesson.Duration != 0)
-                existinglesson.Duration = lesson.Duration;
 
-            var updatedLesson = lessonRepo.UpdateLesson(id, existinglesson);
+            // تحديث الحقول فقط إذا تم إرسال قيم صالحة
+            if (!string.IsNullOrEmpty(lesson.Title))
+                existingLesson.Title = lesson.Title;
+            if (!string.IsNullOrEmpty(lesson.Description))
+                existingLesson.Description = lesson.Description;
+            if (!string.IsNullOrEmpty(lesson.VideoURL))
+                existingLesson.VideoURL = lesson.VideoURL;
+            if (lesson.Order > 0) // افتراض أن Order لا يجب أن يكون 0
+                existingLesson.Order = lesson.Order;
+            if (lesson.Duration > 0) // افتراض أن Duration لا يجب أن يكون 0
+                existingLesson.Duration = lesson.Duration;
+
+            var updatedLesson = lessonRepo.UpdateLesson(id, existingLesson);
             return mapper.Map<UpdateLessonDTO>(updatedLesson);
         }
+
     }
 }
+

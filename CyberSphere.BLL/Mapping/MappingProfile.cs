@@ -34,9 +34,15 @@ namespace CyberSphere.BLL.Mapping
             CreateMap<CreateLessonDTO,Lesson>().ReverseMap();
             CreateMap<UpdateLessonDTO, Lesson>().ReverseMap();
             CreateMap<GetLessonByIdDTO, Lesson>().ReverseMap();
-            CreateMap<GetAllLessonsByCourseIdDTO,Lesson>().ReverseMap();
-
-
+            CreateMap<Lesson, GetAllLessonsByCourseIdDTO>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.VideoURL, opt => opt.MapFrom(src => src.VideoURL))
+                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Order))
+                .ForMember(dest => dest.CourseId, opt => opt.MapFrom(src => src.CourseId));
         }
-    }
-}
+
+
+    }}

@@ -10,7 +10,7 @@ namespace CyberSphere.BLL.Services.Interface
 {
     public interface ILessonService
     {
-        Task<IEnumerable<GetAllLessonsByCourseIdDTO>> GetLessonsByCourseId(int courseId);
+        List<GetAllLessonsByCourseIdDTO> GetLessonsByCourseId(int courseId);
         GetLessonByIdDTO GetLessonById(int id);
         UpdateLessonDTO UpdateLesson(int id,UpdateLessonDTO lesson);
         CreateLessonDTO CreateLesson(CreateLessonDTO lesson);

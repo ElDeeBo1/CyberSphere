@@ -14,7 +14,7 @@ namespace CyberSphere.BLL.DTO.LessonDTO
 
         [DataType(DataType.Url)]
         public string VideoURL { get; set; }
-        [DataType(DataType.Duration)]
+     
 
         public int Duration { get; set; }
         public int Order { get; set; }

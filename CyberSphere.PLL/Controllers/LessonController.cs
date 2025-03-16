@@ -1,5 +1,7 @@
 ﻿using CyberSphere.BLL.DTO.LessonDTO;
 using CyberSphere.BLL.Services.Interface;
+using CyberSphere.DAL.Entities;
+using CyberSphere.DAL.Repo.Implementation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +17,7 @@ namespace CyberSphere.PLL.Controllers
         {
             this.lessonService = lessonService;
         }
-        [HttpGet]
+        [HttpGet("get-lesson_by-id")]
         public IActionResult GetLessonByID(int id)
         {
             if(ModelState.IsValid)
@@ -27,16 +29,47 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("error in model state ....");    
         }
-        [HttpGet]
-        public async Task IActionResult  <list<GetLessonsByCourseID>>(int courseID)
+        [HttpPut("{id}")]
+        public IActionResult UpdateLesson(int id, [FromForm] UpdateLessonDTO lessonDTO)
+        {
+            if (ModelState.IsValid)
+            {
+                var oldlesson = lessonService.GetLessonById(id);
+                if (oldlesson != null)
+                {
+                    var lesson = lessonService.UpdateLesson(id, lessonDTO);
+                    return Ok(lesson);
+
+                }
+                return BadRequest("this lesson not exist");
+            }
+            return BadRequest("this lesson not exist");
+        }
+
+
+
+        [HttpDelete]
+        public IActionResult DeleteLesson(int id)
         {
             if(ModelState.IsValid)
             {
-                lessonService.GetLessonsByCourseId(courseID);
-
+                lessonService.DeleteLesson(id);
+                return Ok($"the lesson deleted successfully");
             }
+            return BadRequest("cant not delete the lesson");
         }
-        [HttpPost]
+
+        [HttpGet("get-all-course-lessons")]
+        public IActionResult GetLessonsByCourseId(int courseId)
+        {
+            if(ModelState.IsValid)
+            {
+                var lessons = lessonService.GetLessonsByCourseId(courseId);
+                return Ok(lessons);
+            }
+            return BadRequest("can not show all lesson .. plz check your code");
+        }
+        [HttpPost("add-lesson")]
         public IActionResult AddLesson(CreateLessonDTO creareLessonDTo)
         {
             if (ModelState.IsValid)
