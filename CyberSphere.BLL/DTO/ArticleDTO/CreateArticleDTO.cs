@@ -19,8 +19,6 @@ namespace CyberSphere.BLL.DTO.ArticleDTO
 
         [Required(ErrorMessage = "The content is required")]
         public string Content { get; set; }
-        [DataType(DataType.DateTime)]
-        public DateTime PublishedAt { get; set; } = DateTime.Now;
         public string? Image { get; set; }
         public IFormFile? ImageFile { get; set; }
 

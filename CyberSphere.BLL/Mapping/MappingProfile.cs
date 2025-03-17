@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CyberSphere.BLL.DTO.ArticleDTO;
+using CyberSphere.BLL.DTO.CourseDTO;
 using CyberSphere.BLL.DTO.LessonDTO;
 using CyberSphere.DAL.Entities;
 using System;
@@ -30,7 +31,6 @@ namespace CyberSphere.BLL.Mapping
 
                 
 
-
             CreateMap<CreateLessonDTO,Lesson>().ReverseMap();
             CreateMap<UpdateLessonDTO, Lesson>().ReverseMap();
             CreateMap<GetLessonByIdDTO, Lesson>().ReverseMap();
@@ -42,6 +42,13 @@ namespace CyberSphere.BLL.Mapping
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Order))
                 .ForMember(dest => dest.CourseId, opt => opt.MapFrom(src => src.CourseId));
+
+
+
+            CreateMap<CreateCourseDTO,Course>().ReverseMap();
+            CreateMap<UpdateCourseDTO,Course>().ReverseMap();
+            CreateMap<Course,GetCourseByIdDTO>().ReverseMap();
+            CreateMap<Course, GetAllCoursesDTO>();
         }
 
 

@@ -32,9 +32,7 @@ namespace CyberSphere.BLL.Services.Implenentation
                 if (articleDTO.ImageFile != null)
                 {
                     articleDTO.Image = FileHelper.UploadFile("Article_Img", articleDTO.ImageFile);
-                    //string uploadedImagePath = FileHelper.UploadFile("Article_Img", articleDTO.ImageFile);
-                    //Console.WriteLine($"Uploaded Image Path: {uploadedImagePath}"); // 🛑 تتبع المسار
-                    //articleDTO.Image = uploadedImagePath;
+
                 }
                 var articleEntity = mapper.Map<Article>(articleDTO);
                 //Console.WriteLine($"قبل الحفظ - ImgURL: {articleEntity.ImgURL}");
@@ -87,12 +85,6 @@ namespace CyberSphere.BLL.Services.Implenentation
             return mapper.Map<GetArticleByIdDTO>(article);
         }
 
-        //public UpdateArticleDTO UpdateArticle(int id, UpdateArticleDTO articleDTO)
-        //{
-        //    var article = mapper.Map<Article>(articleDTO);
-        //    var updatedarticle = articleRepo.Update(id, article);
-        //    return mapper.Map<UpdateArticleDTO>(updatedarticle);
-        //}
 
         public UpdateArticleDTO UpdateArticle(int id, UpdateArticleDTO articleDTO)
         {
@@ -102,7 +94,7 @@ namespace CyberSphere.BLL.Services.Implenentation
                 throw new Exception("Article not found");
             }
 
-            // تحديث الحقول غير الفارغة فقط
+  
             if (!string.IsNullOrEmpty(articleDTO.Title))
                 existingArticle.Title = articleDTO.Title;
 
@@ -118,7 +110,6 @@ namespace CyberSphere.BLL.Services.Implenentation
             if (articleDTO.PublishedAt.HasValue)
                 existingArticle.PublishedAt = articleDTO.PublishedAt.Value;
 
-            // تحديث الصورة فقط عند إرسالها
             if (articleDTO.ImageFile != null)
             {
                 existingArticle.ImgURL = FileHelper.SaveImage(articleDTO.ImageFile);

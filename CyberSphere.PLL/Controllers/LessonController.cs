@@ -17,6 +17,16 @@ namespace CyberSphere.PLL.Controllers
         {
             this.lessonService = lessonService;
         }
+        [HttpGet("get-all-course-lessons")]
+        public IActionResult GetLessonsByCourseId(int courseId)
+        {
+            if(ModelState.IsValid)
+            {
+                var lessons = lessonService.GetLessonsByCourseId(courseId);
+                return Ok(lessons);
+            }
+            return BadRequest("can not show all lesson .. plz check your code");
+        }
         [HttpGet("get-lesson_by-id")]
         public IActionResult GetLessonByID(int id)
         {
@@ -28,6 +38,17 @@ namespace CyberSphere.PLL.Controllers
                 return Ok(lesson);
             }
             return BadRequest("error in model state ....");    
+        }
+        [HttpPost("add-lesson")]
+        public IActionResult AddLesson(CreateLessonDTO creareLessonDTo)
+        {
+            if (ModelState.IsValid)
+            {
+                var createdlesson = lessonService.CreateLesson(creareLessonDTo);
+                return Ok(createdlesson);
+
+            }
+            return BadRequest("can not be to create lesson");
         }
         [HttpPut("{id}")]
         public IActionResult UpdateLesson(int id, [FromForm] UpdateLessonDTO lessonDTO)
@@ -59,27 +80,6 @@ namespace CyberSphere.PLL.Controllers
             return BadRequest("cant not delete the lesson");
         }
 
-        [HttpGet("get-all-course-lessons")]
-        public IActionResult GetLessonsByCourseId(int courseId)
-        {
-            if(ModelState.IsValid)
-            {
-                var lessons = lessonService.GetLessonsByCourseId(courseId);
-                return Ok(lessons);
-            }
-            return BadRequest("can not show all lesson .. plz check your code");
-        }
-        [HttpPost("add-lesson")]
-        public IActionResult AddLesson(CreateLessonDTO creareLessonDTo)
-        {
-            if (ModelState.IsValid)
-            {
-                var createdlesson = lessonService.CreateLesson(creareLessonDTo);
-                return Ok(createdlesson);
-
-            }
-            return BadRequest("can not be to create lesson");
-        }
 
     }
 }

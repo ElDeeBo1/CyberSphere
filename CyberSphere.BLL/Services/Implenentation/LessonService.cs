@@ -87,17 +87,16 @@ namespace CyberSphere.BLL.Services.Implenentation
                 throw new Exception("Lesson not found");
             }
 
-            // تحديث الحقول فقط إذا تم إرسال قيم صالحة
             if (!string.IsNullOrEmpty(lesson.Title))
                 existingLesson.Title = lesson.Title;
             if (!string.IsNullOrEmpty(lesson.Description))
                 existingLesson.Description = lesson.Description;
             if (!string.IsNullOrEmpty(lesson.VideoURL))
                 existingLesson.VideoURL = lesson.VideoURL;
-            if (lesson.Order > 0) // افتراض أن Order لا يجب أن يكون 0
-                existingLesson.Order = lesson.Order;
-            if (lesson.Duration > 0) // افتراض أن Duration لا يجب أن يكون 0
-                existingLesson.Duration = lesson.Duration;
+            if (lesson.Order.HasValue)  
+                existingLesson.Order = lesson.Order.Value;
+            if (lesson.Duration.HasValue)
+                existingLesson.Duration = lesson.Duration.Value;
 
             var updatedLesson = lessonRepo.UpdateLesson(id, existingLesson);
             return mapper.Map<UpdateLessonDTO>(updatedLesson);

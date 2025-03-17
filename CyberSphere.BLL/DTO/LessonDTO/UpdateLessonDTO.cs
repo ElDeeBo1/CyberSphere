@@ -9,14 +9,14 @@ namespace CyberSphere.BLL.DTO.LessonDTO
 {
     public class UpdateLessonDTO
     {
-        public string Title { get; set; }
-        public string Description { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
 
         [DataType(DataType.Url)]
-        public string VideoURL { get; set; }
+        public string? VideoURL { get; set; }
      
 
-        public int Duration { get; set; }
-        public int Order { get; set; }
+        public int? Duration { get; set; }
+        public int? Order { get; set; }
     }
 }
