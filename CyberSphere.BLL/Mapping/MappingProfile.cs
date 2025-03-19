@@ -2,6 +2,7 @@
 using CyberSphere.BLL.DTO.ArticleDTO;
 using CyberSphere.BLL.DTO.CourseDTO;
 using CyberSphere.BLL.DTO.LessonDTO;
+using CyberSphere.BLL.DTO.LevelDTO;
 using CyberSphere.DAL.Entities;
 using System;
 using System.Collections.Generic;
@@ -52,6 +53,12 @@ namespace CyberSphere.BLL.Mapping
             CreateMap<Course, GetCourseByIdDTO>()
              .ForMember(dest => dest.LevelName, opt => opt.MapFrom(src => src.Level.Title))  
              .ForMember(dest => dest.Lessons, opt => opt.MapFrom(src => src.Lessons));
+
+            CreateMap<CreateLevelDTO, Level>().ReverseMap();
+            CreateMap<UpdateLevelDTO, Level>().ReverseMap();
+            CreateMap<Level,GetLevelByIdDTO>()
+                .ForMember(dst =>dst.ParentLevelId,opt => opt.MapFrom(src => src.ParentLevelId));
+            CreateMap<Level, GetAllLevelsDTO>();
         }
 
 

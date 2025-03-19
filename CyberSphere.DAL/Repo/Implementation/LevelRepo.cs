@@ -25,9 +25,9 @@ namespace CyberSphere.DAL.Repo.Implementation
             return level;
         }
 
-        public bool DeleteLevel(int id)
+        public bool DeleteLevel(Level leveled)
         {
-            var level = dbContext.Levels.FirstOrDefault(i => i.Id == id);
+            var level = dbContext.Levels.FirstOrDefault(i => i.Id == leveled.Id);
             if(level != null)
             {
                 dbContext.Levels.Remove(level);
@@ -63,7 +63,7 @@ namespace CyberSphere.DAL.Repo.Implementation
             existedlevel.SubLevels = level.SubLevels;
             existedlevel.Courses = level.Courses;
             existedlevel.ParentLevel = level.ParentLevel;
-            dbContext.Levels.Add(existedlevel);
+            dbContext.SaveChanges();
             return existedlevel;
         }
     }

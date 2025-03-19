@@ -13,6 +13,6 @@ namespace CyberSphere.DAL.Repo.Interface
         List<Level> GetLevels();
         Level Addlevel(Level level);
         Level Updatelevel(int id,Level level);
-        bool DeleteLevel(int id);
+        bool DeleteLevel(Level level);
     }
 }
