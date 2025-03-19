@@ -47,9 +47,9 @@ namespace CyberSphere.BLL.Services.Implenentation
             {
                 throw new Exception("course not found");
             }
-            if (!string.IsNullOrEmpty(existedcourse.Title))
+            if (!string.IsNullOrEmpty(updateCourseDTO.Title))
                 existedcourse.Title = updateCourseDTO.Title;
-            if (!string.IsNullOrEmpty(existedcourse.Description))
+            if (!string.IsNullOrEmpty(updateCourseDTO.Description))
                 existedcourse.Description = updateCourseDTO.Description;
             if(updateCourseDTO.LevelId.HasValue)
                 existedcourse.LevelId = updateCourseDTO.LevelId.Value;

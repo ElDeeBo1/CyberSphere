@@ -65,7 +65,10 @@ namespace CyberSphere.DAL.Repo.Implementation
 
         public Course GetCourse(int id)
         {
-               return dbContext.Courses.FirstOrDefault(x => x.Id == id);
+               return dbContext.Courses
+                .Include(c =>c.Level)
+                .Include(c =>c.Lessons)
+                .FirstOrDefault(x => x.Id == id);
 
         }
 
@@ -79,13 +82,16 @@ namespace CyberSphere.DAL.Repo.Implementation
                 throw new Exception("not found");
 
             }
-            existedcourse.Title = course.Title;
-            existedcourse.Level = course.Level; 
-            existedcourse.Lessons = course.Lessons;
-            existedcourse.CreatedAT = course.CreatedAT;
-            existedcourse.Description = course.Description;
-            existedcourse.LevelId = course.LevelId;
-            dbContext.SaveChanges();
+
+                if (!string.IsNullOrEmpty(course.Title))
+                    existedcourse.Title = course.Title;
+
+                if (!string.IsNullOrEmpty(course.Description))  
+                    existedcourse.Description = course.Description;
+
+                if (course.LevelId > 0)  
+                    existedcourse.LevelId = course.LevelId;
+                dbContext.SaveChanges();
             return existedcourse;
 
             }

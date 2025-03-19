@@ -37,5 +37,42 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("Casnnt add course");
         }
+        [HttpGet("gett-all-courses")]
+        public IActionResult GetAllCourses()
+        {
+            if(ModelState.IsValid)
+            {
+                var courses = courseService.GetAllCourses();
+                return Ok(courses);
+
+            }
+            return BadRequest("erorr !11111111");
+        }
+        [HttpDelete]
+        public IActionResult DeleteCourse(int id)
+        {
+            if(ModelState.IsValid)
+            {
+                courseService.DeleteCourse(id);
+                return Ok("course deleted successfully");
+            }
+            return BadRequest("error when delete");
+
+        }
+        [HttpPut("{id}")]
+        public IActionResult UpdateCourse(int id,[FromForm]UpdateCourseDTO courseDTO)
+        {
+            if(ModelState.IsValid)
+            {
+                var course = courseService.GetCourseById(id);
+                if(course != null)
+                {
+                    var updated = courseService.UpdateCourse(id, courseDTO);    
+                    return Ok(updated);
+                }
+                return BadRequest("the course not exists");
+            }
+            return BadRequest("error !");
+        }
     }
 }

@@ -36,7 +36,8 @@ namespace CyberSphere.DAL.Database
             modelBuilder.Entity<Level>()
                 .HasMany(l => l.Courses)
                 .WithOne(c => c.Level)
-                .HasForeignKey(c => c.LevelId);
+                .HasForeignKey(c => c.LevelId)
+                .OnDelete(DeleteBehavior.Restrict); ;
 
             modelBuilder.Entity<Course>()
                 .HasMany(c => c.Lessons)
