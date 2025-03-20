@@ -53,6 +53,7 @@ namespace CyberSphere.BLL.Mapping
             CreateMap<Course, GetCourseByIdDTO>()
              .ForMember(dest => dest.LevelName, opt => opt.MapFrom(src => src.Level.Title))  
              .ForMember(dest => dest.Lessons, opt => opt.MapFrom(src => src.Lessons));
+            CreateMap<Course_ModelDTO, Course>().ReverseMap();
 
             CreateMap<CreateLevelDTO, Level>().ReverseMap();
             CreateMap<UpdateLevelDTO, Level>().ReverseMap();

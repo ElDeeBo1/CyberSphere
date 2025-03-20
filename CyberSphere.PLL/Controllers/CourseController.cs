@@ -22,7 +22,7 @@ namespace CyberSphere.PLL.Controllers
             {
                 var course = courseService.GetCourseById(id);
                 if(course == null)
-                    Console.WriteLine("not exist");
+                   return NotFound("not found");
                 return Ok(course);
             }
             return BadRequest("can not view");
