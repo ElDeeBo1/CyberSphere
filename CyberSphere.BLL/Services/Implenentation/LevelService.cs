@@ -84,7 +84,7 @@ namespace CyberSphere.BLL.Services.Implenentation
                 existedlevel.ParentLevelId = levelDTO.ParentLevelId.Value;
             var updated = levelRepo.Updatelevel(id, existedlevel);
 
-            return mapper.Map<UpdateLevelDTO>(existedlevel);
+            return mapper.Map<UpdateLevelDTO>(updated);
         }
     }
 }

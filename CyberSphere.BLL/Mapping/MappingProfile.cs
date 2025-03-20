@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CyberSphere.BLL.DTO.ArticleDTO;
+using CyberSphere.BLL.DTO.BookDTO;
 using CyberSphere.BLL.DTO.CourseDTO;
 using CyberSphere.BLL.DTO.LessonDTO;
 using CyberSphere.BLL.DTO.LevelDTO;
@@ -60,6 +61,11 @@ namespace CyberSphere.BLL.Mapping
             CreateMap<Level,GetLevelByIdDTO>()
                 .ForMember(dst =>dst.ParentLevelId,opt => opt.MapFrom(src => src.ParentLevelId));
             CreateMap<Level, GetAllLevelsDTO>();
+
+            CreateMap<CreateBookDTO, Book>().ReverseMap();
+            CreateMap<Book, GetBookByIdDTO>().ReverseMap();
+            CreateMap<Book, GetAllBooksDTO>();
+            CreateMap<UpdateBookDTO, Book>().ReverseMap();
         }
 
 

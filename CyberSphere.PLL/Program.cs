@@ -47,6 +47,9 @@ namespace CyberSphere.PLL
             builder.Services.AddScoped<ILevelRepo, LevelRepo>();
             builder.Services.AddScoped<ILevelService, LevelService>();
 
+            builder.Services.AddScoped<IBookRepo, BookRepo>();
+            builder.Services.AddScoped<IBookService, BookService>();
+
             builder.Services.AddTransient<IEmailSender, EmailService>();
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
