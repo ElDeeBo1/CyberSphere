@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,11 @@ namespace CyberSphere.BLL.DTO.StudentDTO
         public string? UniversityName { get; set; }
         public string? ProfilePictureURL { get; set; }
         public IFormFile? ImageFile { get; set; }
-        public ApplicationUser User { get; set; }
+        [DataType(DataType.PhoneNumber)]
+        public string? PhoneNumber { get; set; }
+        public string? Email { get; set; }
+        public string? UserName { get; set; }
+
+        public string? UserId { get; set; } // ربط الطالب بالمستخدم
     }
 }

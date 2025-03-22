@@ -1,6 +1,7 @@
 ﻿using CyberSphere.DAL.Database;
 using CyberSphere.DAL.Entities;
 using CyberSphere.DAL.Repo.Interface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,12 +18,12 @@ namespace CyberSphere.DAL.Repo.Implementation
         {
             this.dbContext = dbContext;
         }
-        public Student AddStudent(Student student)
+        public async Task <Student> AddStudent(Student student)
         {
             try
             {
                 dbContext.Students.Add(student);
-                dbContext.SaveChanges();
+              await  dbContext.SaveChangesAsync();
                 return student;
             }
             catch (Exception)
@@ -32,16 +33,16 @@ namespace CyberSphere.DAL.Repo.Implementation
             }
         }
 
-        public bool DeleteStudent(Student student)
+        public async Task <bool> DeleteStudent(Student student)
         {
             try
             {
-                var existedstudent = dbContext.Students.FirstOrDefault(s => s.Id == student.Id);
+                var existedstudent = await dbContext.Students.Include(s =>s.User).FirstOrDefaultAsync(s => s.Id == student.Id);
                 if (existedstudent != null)
                 {
                     dbContext.Students.Remove(existedstudent);
                     dbContext.SaveChanges();
-                    return true;
+                     return  true;
                 }
                 return false;
             }
@@ -52,46 +53,53 @@ namespace CyberSphere.DAL.Repo.Implementation
             }
         }
 
-        public List<Student> GetAllStudents()
+        public async Task <List<Student>> GetAllStudents()
         {
-            return dbContext.Students.ToList();
+            return await dbContext.Students.Include(u =>u.User).ToListAsync();
         }
 
-        public Student GetStudentById(int id)
+        public async Task <Student> GetStudentById(int id)
         {
-            return dbContext.Students.FirstOrDefault(s => s.Id == id);
+            return await dbContext.Students.Include(u =>u.User).FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public Student UpdateStudent(int id, Student student)
+        public async Task <Student> UpdateStudent(int id, Student student)
         {
             try
             {
-                var existedstudent = dbContext.Students.FirstOrDefault(s => s.Id == id);
+                var existedstudent = await dbContext.Students
+      .Include(s => s.User)
+      .FirstOrDefaultAsync(s => s.Id == id);
+
                 if (existedstudent == null)
                 {
                     throw new Exception("can not be update");
                 }
+
+                if (!string.IsNullOrEmpty(student.User.PhoneNumber))
+                    existedstudent.PhoneNumber = student.PhoneNumber;
+      
+
                 if (!string.IsNullOrEmpty(student.User.Email))
                     existedstudent.User.Email = student.User.Email;
-                if (!string.IsNullOrEmpty(student.User.PhoneNumber))
-                    existedstudent.User.PhoneNumber = student.User.PhoneNumber;
-                if(!string.IsNullOrEmpty(student.User.UserName))
+                //if (!string.IsNullOrEmpty(student.User.PhoneNumber))
+                //    existedstudent.User.PhoneNumber = student.User.PhoneNumber;
+                if (!string.IsNullOrEmpty(student.User.UserName))
                     existedstudent.User.UserName = student.User.UserName;
-                if(!string.IsNullOrEmpty(student.FirstName))
+                existedstudent.Age = student.Age;
+                if (!string.IsNullOrEmpty(student.FirstName))
                     existedstudent.FirstName = student.FirstName;
-
-                if(!string.IsNullOrEmpty(student.LastName))
-                    existedstudent.LastName = student.LastName;      
-                if(!string.IsNullOrEmpty(student.UniversityName))
+                if (!string.IsNullOrEmpty(student.LastName))
+                    existedstudent.LastName = student.LastName;
+                if (!string.IsNullOrEmpty(student.UniversityName))
                     existedstudent.UniversityName = student.UniversityName;
-                if(!string.IsNullOrEmpty(student.Address))
+                if (!string.IsNullOrEmpty(student.Address))
                     existedstudent.Address = student.Address;
-                if(!string.IsNullOrEmpty(student.ProfilePictureURL))
+                if (!string.IsNullOrEmpty(student.ProfilePictureURL))
                     existedstudent.ProfilePictureURL = student.ProfilePictureURL;
-                dbContext.SaveChanges();
+
+                await dbContext.SaveChangesAsync();
                 return existedstudent;
-
-
 
 
             }

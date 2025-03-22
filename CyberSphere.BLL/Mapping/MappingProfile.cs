@@ -72,12 +72,26 @@ namespace CyberSphere.BLL.Mapping
                 .ForMember(dst => dst.ProfilePictureURL, opt => opt.MapFrom(src => src.ProfilePictureURL))
                 .ReverseMap()
                 .ForMember(dst => dst.ProfilePictureURL, opt => opt.MapFrom(src => src.ProfilePictureURL));
+
+            CreateMap<Student, GetStudentByIdDTO>()
+              .ForMember(dst => dst.Email, opt => opt.MapFrom(src => src.User.Email))
+    .ForMember(dst => dst.phone, opt => opt.MapFrom(src => src.PhoneNumber))
+    .ForMember(dst => dst.UserName, opt => opt.MapFrom(src => src.User.UserName))
+    .ForMember(dst => dst.ProfilePictureURL, opt => opt.MapFrom(src => src.ProfilePictureURL));
+            
+            CreateMap<Student, GetAllStudentsDTO>()
+                 .ForMember(dst => dst.ProfilePictureURL, opt => opt.MapFrom(src => src.ProfilePictureURL))
+                 .ForMember(dst => dst.UserName, opt => opt.MapFrom(src => src.User.UserName))
+                 .ForMember(dst => dst.Email, opt => opt.MapFrom(src => src.User.Email));
+
             CreateMap<UpdateStudentDTO, Student>()
-                .ForMember(dst => dst.ProfilePictureURL, opt => opt.MapFrom(src => src.ProfilePictureURL))
-                .ReverseMap()
-                .ForMember(dst => dst.ProfilePictureURL, opt => opt.MapFrom(src => src.ProfilePictureURL));
-            CreateMap<Student, GetStudentByIdDTO>().ForMember(dst => dst.ProfilePictureURL, opt => opt.MapFrom(src => src.ProfilePictureURL));
-            CreateMap<Student, GetAllStudentsDTO>().ForMember(dst => dst.ProfilePictureURL, opt => opt.MapFrom(src => src.ProfilePictureURL));
+    .ForMember(dst => dst.ProfilePictureURL, opt => opt.MapFrom(src => src.ProfilePictureURL))
+    .ForMember(dst => dst.User, opt => opt.Ignore())  // ← لتجنب مشاكل تحديث الكائنات المرتبطة
+    .ReverseMap()
+    .ForMember(dst => dst.Email, opt => opt.MapFrom(src => src.User.Email))
+    .ForMember(dst => dst.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
+    .ForMember(dst => dst.UserName, opt => opt.MapFrom(src => src.User.UserName))
+    .ForMember(dst => dst.ProfilePictureURL, opt => opt.MapFrom(src => src.ProfilePictureURL));
 
 
 

@@ -9,11 +9,11 @@ namespace CyberSphere.DAL.Repo.Interface
 {
     public interface IStudentRepo
     {
-        Student AddStudent(Student student);    
-        Student UpdateStudent(int id,Student student);
-        Student GetStudentById(int id);
-        List<Student> GetAllStudents();
-        bool DeleteStudent(Student student);
+       Task <Student> AddStudent(Student student);    
+        Task<Student> UpdateStudent(int id,Student student);
+       Task <Student> GetStudentById(int id);
+      Task < List<Student>> GetAllStudents();
+       Task <bool> DeleteStudent(Student student);
 
 
     }

@@ -9,10 +9,10 @@ namespace CyberSphere.BLL.Services.Interface
 {
     public interface IStudentService
     {
-        AddStudentDTO AddStudent(AddStudentDTO student);
-        UpdateStudentDTO UpdateStudent(int id,UpdateStudentDTO student);
-       List  <GetAllStudentsDTO> GetAllStudents();
-        GetStudentByIdDTO GetStudentById(int id);
-        bool DeleteStudent (int id);    
+       Task <AddStudentDTO> AddStudent(AddStudentDTO student);
+        Task <UpdateStudentDTO> UpdateStudent(int id,UpdateStudentDTO student);
+      Task < List  <GetAllStudentsDTO>> GetAllStudents();
+       Task <GetStudentByIdDTO> GetStudentById(int id);
+       Task <bool> DeleteStudent (int id);    
     }
 }

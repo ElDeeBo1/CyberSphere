@@ -1,4 +1,6 @@
-﻿using CyberSphere.BLL.DTO.AccountDTO;
+﻿using AutoMapper;
+using CyberSphere.BLL.DTO.AccountDTO;
+using CyberSphere.BLL.DTO.StudentDTO;
 using CyberSphere.BLL.Services.Interface;
 using CyberSphere.DAL.Entities;
 using FluentEmail.Core;
@@ -21,19 +23,23 @@ namespace CyberSphere.PLL.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        private readonly IMapper mapper;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IConfiguration config;
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IEmailSender emailSender;
+        private readonly IStudentService studentservice;
 
-        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration config, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender)
+        public AccountController(IMapper mapper,UserManager<ApplicationUser> userManager, IConfiguration config, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender,IStudentService studentservice )
         {
+            this.mapper = mapper;
             this.userManager = userManager;
             this.config = config;
             this.signInManager = signInManager;
             this.roleManager = roleManager;
             this.emailSender = emailSender;
+            this.studentservice = studentservice;
         }
         //[Authorize(Roles = "Admin")]
         //[HttpGet("Get-login-userid")]
@@ -41,38 +47,123 @@ namespace CyberSphere.PLL.Controllers
         {
             return User?.FindFirstValue(ClaimTypes.NameIdentifier);
         }
+        //[HttpPost("Register")]
+        //public async Task<IActionResult> Register(RegisterDTO registerDTO)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+
+        //        ApplicationUser user = new ApplicationUser();
+        //        user.Email = registerDTO.Email;
+        //        user.UserName = registerDTO.UserName;
+
+        //        IdentityResult result = await userManager.CreateAsync(user, registerDTO.Password);
+        //        if (result.Succeeded)
+        //        {
+        //            user = await userManager.FindByEmailAsync(registerDTO.Email);
+
+        //            if (user == null || string.IsNullOrEmpty(user.Id))
+        //            {
+        //                return BadRequest("Failed to retrieve user ID.");
+        //            }
+        //            var studented = new Student
+        //            {
+        //                FirstName = "", // يمكن إضافتها لاحقًا عند التحديث
+        //                LastName = "",
+        //                Age = 0,
+        //                PhoneNumber = "",
+        //                Address = "",
+        //                UniversityName = "",
+        //                ProfilePictureURL = null,
+        //                UserId = user.Id // ربط الطالب بالمستخدم
+        //            };
+        //            var entity = mapper.Map<AddStudentDTO>(studented);
+        //            await  studentservice.AddStudent(entity);
+
+        //            //await userManager.SetTwoFactorEnabledAsync(user,true);
+        //            await userManager.SetTwoFactorEnabledAsync(user, true);
+        //            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        //            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = user.Email }, Request.Scheme, Request.Host.ToString());
+
+
+        //            var subject = "Confirm your email";
+        //            var message = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>";
+        //            await emailSender.SendEmailAsync(user.Email, subject, message);
+        //            return Ok($"We send email confirmation in {user.Email}  & User Created Successfully");
+        //        }
+        //        foreach (var item in result.Errors)
+        //        {
+        //            ModelState.AddModelError("Password", item.Description);
+        //        }
+
+        //    }
+        //    return BadRequest(ModelState);
+        //}
         [HttpPost("Register")]
         public async Task<IActionResult> Register(RegisterDTO registerDTO)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
+                return BadRequest(ModelState);
+            }
 
-                ApplicationUser user = new ApplicationUser();
-                user.Email = registerDTO.Email;
-                user.UserName = registerDTO.UserName;
+            // إنشاء المستخدم
+            var user = new ApplicationUser
+            {
+                Email = registerDTO.Email,
+                UserName = registerDTO.UserName
+            };
 
-                IdentityResult result = await userManager.CreateAsync(user, registerDTO.Password);
-                if (result.Succeeded)
-                {
-                    //await userManager.SetTwoFactorEnabledAsync(user,true);
-                    await userManager.SetTwoFactorEnabledAsync(user, true);
-                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = user.Email }, Request.Scheme, Request.Host.ToString());
-
-
-                    var subject = "Confirm your email";
-                    var message = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>";
-                    await emailSender.SendEmailAsync(user.Email, subject, message);
-                    return Ok($"We send email confirmation in {user.Email}  & User Created Successfully");
-                }
+            IdentityResult result = await userManager.CreateAsync(user, registerDTO.Password);
+            if (!result.Succeeded)
+            {
                 foreach (var item in result.Errors)
                 {
                     ModelState.AddModelError("Password", item.Description);
                 }
-
+                return BadRequest(ModelState);
             }
-            return BadRequest(ModelState);
+
+            // جلب المستخدم بعد الإنشاء
+            var createdUser = await userManager.FindByEmailAsync(registerDTO.Email);
+            if (createdUser == null || string.IsNullOrEmpty(createdUser.Id))
+            {
+                return BadRequest("Failed to retrieve user ID.");
+            }
+
+            // إنشاء سجل الطالب وربطه بالمستخدم
+            var studentEntity = new Student
+            {
+                FirstName = "", // يمكن إضافتها لاحقًا عند التحديث
+                LastName = "",
+                Age = 0,
+                PhoneNumber = "",
+                Address = "",
+                UniversityName = "",
+                ProfilePictureURL = null,
+                UserId = createdUser.Id
+            };
+
+            var studentDto = mapper.Map<AddStudentDTO>(studentEntity);
+
+            // إضافة الطالب بطريقة مضمونة دون التأثير على `DbContext`
+            await studentservice.AddStudent(studentDto).ConfigureAwait(false);
+
+            // تمكين التحقق الثنائي للمستخدم
+            await userManager.SetTwoFactorEnabledAsync(createdUser, true).ConfigureAwait(false);
+
+            // إنشاء رابط تأكيد البريد الإلكتروني
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(createdUser).ConfigureAwait(false);
+            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = createdUser.Email }, Request.Scheme, Request.Host.ToString());
+
+            // إرسال البريد الإلكتروني
+            var subject = "Confirm your email";
+            var message = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>";
+            await emailSender.SendEmailAsync(createdUser.Email, subject, message).ConfigureAwait(false);
+
+            return Ok($"We send email confirmation to {createdUser.Email} & User Created Successfully");
         }
+
 
         [HttpGet("Confirm-Email")]
         public async Task<IActionResult> ConfirmEmail(string token, string email)

@@ -25,10 +25,10 @@ namespace CyberSphere.DAL.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
- 
+
             base.OnModelCreating(modelBuilder);
 
-            
+
             modelBuilder.Entity<Level>().HasKey(l => l.Id);
             modelBuilder.Entity<Course>().HasKey(c => c.Id);
             modelBuilder.Entity<Lesson>().HasKey(l => l.Id);
@@ -49,7 +49,14 @@ namespace CyberSphere.DAL.Database
                 .HasMany(l => l.SubLevels)
                 .WithOne(l => l.ParentLevel)
                 .HasForeignKey(l => l.ParentLevelId)
-                .OnDelete(DeleteBehavior.Restrict);  
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<Student>()
+         .HasOne(s => s.User)
+         .WithMany() // إذا لم يكن لديك قائمة طلاب داخل `ApplicationUser`
+         .HasForeignKey(s => s.UserId)
+         .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

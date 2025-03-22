@@ -20,7 +20,7 @@ namespace CyberSphere.BLL.DTO.StudentDTO
         public string Address { get; set; }
         public string UniversityName { get; set; }
         public string? ProfilePictureURL { get; set; }
-        public ApplicationUser User { get; set; }
+
 
     }
 }
