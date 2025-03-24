@@ -109,8 +109,8 @@ namespace CyberSphere.BLL.Services.Implenentation
 
             if (!string.IsNullOrEmpty(student.LastName))
                 existedstudent.LastName = student.LastName;
-            if (!string.IsNullOrEmpty(student.UniversityName))
-                existedstudent.UniversityName = student.UniversityName;
+            if (!string.IsNullOrEmpty(student.About))
+                existedstudent.About = student.About;
             if (!string.IsNullOrEmpty(student.Address))
                 existedstudent.Address = student.Address;
             if (student.ImageFile != null)

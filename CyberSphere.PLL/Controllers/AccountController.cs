@@ -2,6 +2,7 @@
 using CyberSphere.BLL.DTO.AccountDTO;
 using CyberSphere.BLL.DTO.StudentDTO;
 using CyberSphere.BLL.Services.Interface;
+using CyberSphere.DAL.Database;
 using CyberSphere.DAL.Entities;
 using FluentEmail.Core;
 using Microsoft.AspNetCore.Authentication.Facebook;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
@@ -23,6 +25,7 @@ namespace CyberSphere.PLL.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        private readonly IServiceScopeFactory serviceScopeFactory;
         private readonly IMapper mapper;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IConfiguration config;
@@ -31,8 +34,9 @@ namespace CyberSphere.PLL.Controllers
         private readonly IEmailSender emailSender;
         private readonly IStudentService studentservice;
 
-        public AccountController(IMapper mapper,UserManager<ApplicationUser> userManager, IConfiguration config, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender,IStudentService studentservice )
+        public AccountController(IServiceScopeFactory serviceScopeFactory,IMapper mapper,UserManager<ApplicationUser> userManager, IConfiguration config, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender,IStudentService studentservice )
         {
+            this.serviceScopeFactory = serviceScopeFactory;
             this.mapper = mapper;
             this.userManager = userManager;
             this.config = config;
@@ -47,7 +51,7 @@ namespace CyberSphere.PLL.Controllers
         {
             return User?.FindFirstValue(ClaimTypes.NameIdentifier);
         }
-        //[HttpPost("Register")]
+        //[HttpPost("Register")] oldest version
         //public async Task<IActionResult> Register(RegisterDTO registerDTO)
         //{
         //    if (ModelState.IsValid)
@@ -99,6 +103,76 @@ namespace CyberSphere.PLL.Controllers
         //    }
         //    return BadRequest(ModelState);
         //}
+
+        //[HttpPost("Register")]  second version
+        //public async Task<IActionResult> Register(RegisterDTO registerDTO)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    // إنشاء المستخدم
+        //    var user = new ApplicationUser
+        //    {
+        //        Email = registerDTO.Email,
+        //        UserName = registerDTO.UserName
+        //    };
+
+        //    IdentityResult result = await userManager.CreateAsync(user, registerDTO.Password);
+        //    if (!result.Succeeded)
+        //    {
+        //        foreach (var item in result.Errors)
+        //        {
+        //            ModelState.AddModelError("Password", item.Description);
+        //        }
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    // جلب المستخدم بعد الإنشاء
+        //    var createdUser = await userManager.FindByEmailAsync(registerDTO.Email);
+        //    if (createdUser == null || string.IsNullOrEmpty(createdUser.Id))
+        //    {
+        //        return BadRequest("Failed to retrieve user ID.");
+        //    }
+
+        //    // إنشاء سجل الطالب وربطه بالمستخدم
+        //    var studentEntity = new Student
+        //    {
+        //        FirstName = "",
+        //        LastName = "",
+        //        Age = 0,
+        //        PhoneNumber = "",
+        //        Address = "",
+        //        UniversityName = "",
+        //        ProfilePictureURL = null,
+        //        UserId = createdUser.Id
+        //    };
+
+        //    var studentDto = mapper.Map<AddStudentDTO>(studentEntity);
+
+        //    // إضافة الطالب باستخدام نطاق جديد
+        //    using (var scope = serviceScopeFactory.CreateScope())
+        //    {
+        //        var scopedStudentService = scope.ServiceProvider.GetRequiredService<IStudentService>();
+        //        await scopedStudentService.AddStudent(studentDto);
+        //    }
+
+        //    // تمكين التحقق الثنائي
+        //    await userManager.SetTwoFactorEnabledAsync(createdUser, true);
+
+        //    // إنشاء رابط تأكيد البريد الإلكتروني
+        //    var token = await userManager.GenerateEmailConfirmationTokenAsync(createdUser);
+        //    var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = createdUser.Email }, Request.Scheme, Request.Host.ToString());
+
+        //    // إرسال البريد الإلكتروني
+        //    var subject = "Confirm your email";
+        //    var message = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>";
+        //    await emailSender.SendEmailAsync(createdUser.Email, subject, message);
+
+        //    return Ok($"We send email confirmation to {createdUser.Email} & User Created Successfully");
+        //}
+
         [HttpPost("Register")]
         public async Task<IActionResult> Register(RegisterDTO registerDTO)
         {
@@ -107,61 +181,72 @@ namespace CyberSphere.PLL.Controllers
                 return BadRequest(ModelState);
             }
 
-            // إنشاء المستخدم
-            var user = new ApplicationUser
+            using (var scope = serviceScopeFactory.CreateScope())
             {
-                Email = registerDTO.Email,
-                UserName = registerDTO.UserName
-            };
+                var scopedStudentService = scope.ServiceProvider.GetRequiredService<IStudentService>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            IdentityResult result = await userManager.CreateAsync(user, registerDTO.Password);
-            if (!result.Succeeded)
-            {
-                foreach (var item in result.Errors)
+                using (var transaction = await dbContext.Database.BeginTransactionAsync())
                 {
-                    ModelState.AddModelError("Password", item.Description);
+                    try
+                    {
+                        // ✅ 1. إنشاء المستخدم مباشرةً دون الحاجة للبحث عنه لاحقًا
+                        var user = new ApplicationUser
+                        {
+                            Email = registerDTO.Email,
+                            UserName = registerDTO.UserName
+                        };
+
+                        IdentityResult result = await userManager.CreateAsync(user, registerDTO.Password);
+                        if (!result.Succeeded)
+                        {
+                            foreach (var item in result.Errors)
+                            {
+                                ModelState.AddModelError("Password", item.Description);
+                            }
+                            return BadRequest(ModelState);
+                        }
+
+                        // ✅ 2. إنشاء الطالب مباشرةً وربطه بالمستخدم
+                        var studentEntity = new Student
+                        {
+                            FirstName = "",
+                            LastName = "",
+                            Age = 0,
+                            PhoneNumber = "",
+                            Address = "",
+                            About = "",
+                            ProfilePictureURL = null,
+                            UserId = user.Id // لا داعي لاستخدام FindByEmailAsync
+                        };
+
+                        var studentDto = mapper.Map<AddStudentDTO>(studentEntity);
+                        await scopedStudentService.AddStudent(studentDto);
+
+                        // ✅ 3. تمكين التحقق الثنائي
+                        await userManager.SetTwoFactorEnabledAsync(user, true);
+
+                        // ✅ 4. إنشاء رابط تأكيد البريد الإلكتروني
+                        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                        var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = user.Email }, Request.Scheme, Request.Host.ToString());
+
+                        // ✅ 5. إرسال البريد الإلكتروني
+                        var subject = "Confirm your email";
+                        var message = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>";
+                        await emailSender.SendEmailAsync(user.Email, subject, message);
+
+                        // ✅ 6. حفظ كل العمليات في قاعدة البيانات دفعة واحدة
+                        await transaction.CommitAsync();
+
+                        return Ok($"We sent email confirmation to {user.Email} & User Created Successfully");
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        return StatusCode(500, $"An error occurred: {ex.Message}");
+                    }
                 }
-                return BadRequest(ModelState);
             }
-
-            // جلب المستخدم بعد الإنشاء
-            var createdUser = await userManager.FindByEmailAsync(registerDTO.Email);
-            if (createdUser == null || string.IsNullOrEmpty(createdUser.Id))
-            {
-                return BadRequest("Failed to retrieve user ID.");
-            }
-
-            // إنشاء سجل الطالب وربطه بالمستخدم
-            var studentEntity = new Student
-            {
-                FirstName = "", // يمكن إضافتها لاحقًا عند التحديث
-                LastName = "",
-                Age = 0,
-                PhoneNumber = "",
-                Address = "",
-                UniversityName = "",
-                ProfilePictureURL = null,
-                UserId = createdUser.Id
-            };
-
-            var studentDto = mapper.Map<AddStudentDTO>(studentEntity);
-
-            // إضافة الطالب بطريقة مضمونة دون التأثير على `DbContext`
-            await studentservice.AddStudent(studentDto).ConfigureAwait(false);
-
-            // تمكين التحقق الثنائي للمستخدم
-            await userManager.SetTwoFactorEnabledAsync(createdUser, true).ConfigureAwait(false);
-
-            // إنشاء رابط تأكيد البريد الإلكتروني
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(createdUser).ConfigureAwait(false);
-            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = createdUser.Email }, Request.Scheme, Request.Host.ToString());
-
-            // إرسال البريد الإلكتروني
-            var subject = "Confirm your email";
-            var message = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>";
-            await emailSender.SendEmailAsync(createdUser.Email, subject, message).ConfigureAwait(false);
-
-            return Ok($"We send email confirmation to {createdUser.Email} & User Created Successfully");
         }
 
 

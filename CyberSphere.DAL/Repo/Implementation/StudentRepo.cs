@@ -91,8 +91,8 @@ namespace CyberSphere.DAL.Repo.Implementation
                     existedstudent.FirstName = student.FirstName;
                 if (!string.IsNullOrEmpty(student.LastName))
                     existedstudent.LastName = student.LastName;
-                if (!string.IsNullOrEmpty(student.UniversityName))
-                    existedstudent.UniversityName = student.UniversityName;
+                if (!string.IsNullOrEmpty(student.About))
+                    existedstudent.About = student.About;
                 if (!string.IsNullOrEmpty(student.Address))
                     existedstudent.Address = student.Address;
                 if (!string.IsNullOrEmpty(student.ProfilePictureURL))

@@ -18,6 +18,7 @@ namespace CyberSphere.DAL.Database
         public DbSet<Course> Courses { get; set; }
         public DbSet<Level> Levels { get; set; }
         public DbSet<Book> Books { get; set; }
+        public DbSet<Certificate> Certificates { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
