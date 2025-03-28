@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CyberSphere.BLL.DTO.CertificateDTO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,6 @@ namespace CyberSphere.BLL.Services.Interface
      public interface ICertificateService
     {
         Task CheckAndGenerateCertificate(int studentid,int courseid);
-        //Task<List<CertificateDto>> GetStudentCertificates(int studentId);
+        Task<List<Certificate_ModelDTO>> GetStudentCertificates(int studentId);
     }
 }

@@ -1,4 +1,5 @@
-﻿using CyberSphere.BLL.Services.Implementation;
+﻿using CyberSphere.BLL.DTO.CertificateDTO;
+using CyberSphere.BLL.Services.Implementation;
 using CyberSphere.BLL.Services.Interface;
 using CyberSphere.DAL.Entities;
 using CyberSphere.DAL.Repo.Implementation;
@@ -96,20 +97,18 @@ namespace CyberSphere.BLL.Services.Implenentation
 
             await emailService.SendEmailAsync(progress.Student.User.Email, emailSubject, emailBody);
         }
-        //public async Task<List<CertificateDto>> GetStudentCertificates(int studentId)
-        //{
-        //    var certificates = await dbContext.Certificates
-        //        .Where(c => c.StudentId == studentId)
-        //        .Select(c => new CertificateDto
-        //        {
-        //            CourseTitle = c.Course.Title,
-        //            IssuedAt = c.IssuedAt,
-        //            CertificateURL = c.CertificateURL
-        //        })
-        //        .ToListAsync();
+        public async Task<List<Certificate_ModelDTO>> GetStudentCertificates(int studentId)
+        {
+            var certificates = await certificateRepo.GetCertificatesByStudentId(studentId);
 
-        //    return certificates;
-        //}
+            return certificates.Select(c => new Certificate_ModelDTO
+            {
+                CourseTitle = c.Course.Title,
+                IssuedAt = c.IssuedAt,
+                CertificateURL = c.CertificateURL
+            }).ToList();
+        }
+
 
 
     }

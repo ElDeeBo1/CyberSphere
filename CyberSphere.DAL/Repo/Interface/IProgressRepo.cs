@@ -1,4 +1,5 @@
 ﻿using CyberSphere.DAL.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,8 @@ namespace CyberSphere.DAL.Repo.Interface
         Task<Progress> GetProgress(int studentId, int courseId);
         Task<List<Progress>> GetStudentCourseLessonsProgress(int studentId, int courseId);
         Task UpdateProgress(int studentId, int courseId, int lessonId, double completionPercentage);
+        Task<List<Progress>> GetStudentCoursesProgress(int studentId);
+
+
     }
 }

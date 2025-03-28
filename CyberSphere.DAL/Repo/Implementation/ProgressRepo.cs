@@ -31,6 +31,15 @@ namespace CyberSphere.DAL.Repo.Implementation
         //    dbContext.SaveChanges();
 
         //}
+        public async Task<List<Progress>> GetStudentCoursesProgress(int studentId)
+        {
+            return await dbContext.Progresss
+                .Where(p => p.StudentId == studentId && p.LessonId == null) // فقط تقدم الكورسات
+                .Include(p => p.Course) // جلب بيانات الكورس
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
 
         public async Task<Progress> GetProgress(int studentId, int courseId)
         {
@@ -68,34 +77,41 @@ namespace CyberSphere.DAL.Repo.Implementation
             }
 
             // ✅ حساب نسبة التقدم الإجمالية
-            var allLessons = await dbContext.Lessons.Where(l => l.CourseId == courseId).CountAsync();
-            var completedLessons = await dbContext.Progresss
-                .Where(p => p.StudentId == studentId && p.CourseId == courseId && p.CompletionPercentage >= 100)
+            int allLessons = await dbContext.Lessons
+                .Where(l => l.CourseId == courseId)
                 .CountAsync();
 
-            double overallCompletion = (completedLessons / (double)allLessons) * 100;
-
-            // ✅ تحديث السجل العام لتقدم الكورس
-            var courseProgress = await dbContext.Progresss
-                .FirstOrDefaultAsync(p => p.StudentId == studentId && p.CourseId == courseId && p.LessonId == null);
-
-            if (courseProgress == null)
+            if (allLessons > 0) // ⬅️ منع القسمة على الصفر
             {
-                courseProgress = new Progress
+                int completedLessons = await dbContext.Progresss
+                    .Where(p => p.StudentId == studentId && p.CourseId == courseId && p.CompletionPercentage >= 100)
+                    .CountAsync();
+
+                double overallCompletion = (completedLessons / (double)allLessons) * 100;
+
+                // ✅ تحديث السجل العام لتقدم الكورس
+                var courseProgress = await dbContext.Progresss
+                    .FirstOrDefaultAsync(p => p.StudentId == studentId && p.CourseId == courseId && p.LessonId == null);
+
+                if (courseProgress == null)
                 {
-                    StudentId = studentId,
-                    CourseId = courseId,
-                    CompletionPercentage = overallCompletion
-                };
-                await dbContext.Progresss.AddAsync(courseProgress);
-            }
-            else
-            {
-                courseProgress.CompletionPercentage = overallCompletion;
+                    courseProgress = new Progress
+                    {
+                        StudentId = studentId,
+                        CourseId = courseId,
+                        CompletionPercentage = overallCompletion
+                    };
+                    await dbContext.Progresss.AddAsync(courseProgress);
+                }
+                else
+                {
+                    courseProgress.CompletionPercentage = overallCompletion;
+                }
             }
 
             await dbContext.SaveChangesAsync();
         }
+
 
     }
 }
