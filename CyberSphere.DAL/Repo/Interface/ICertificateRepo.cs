@@ -1,4 +1,5 @@
 ﻿using CyberSphere.DAL.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace CyberSphere.DAL.Repo.Interface
     {
         Task<Certificate> CreateCertificate(Certificate certificate);
         Task<List<Certificate>> GetCertificatesByStudentId(int Studentid);
+        Task<bool> CertificateExists(int studentId, int courseId);
+       
     }
 }

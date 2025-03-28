@@ -17,6 +17,8 @@ namespace CyberSphere.DAL.Entities
 
         public int CourseId { get; set; }
         public virtual Course Course { get; set; }
+        public List<Progress> Progresss { get; set; }
+
 
     }
 }

@@ -18,6 +18,7 @@ namespace CyberSphere.DAL.Entities
         public string? PhoneNumber { get; set; } // تمت إضافته هنا
         public string UserId { get; set; } // ربط الطالب بالمستخدم
         public List<Certificate> Certificates { get; set; }
+        public List<Progress> Progresss { get; set; }   
         public ApplicationUser User { get; set; }
     }
 }

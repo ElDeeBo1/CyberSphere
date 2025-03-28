@@ -1,22 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CyberSphere.DAL.Entities;
 
-namespace CyberSphere.DAL.Entities
+public class Progress
 {
-    public class Progress
-    {
-        public int Id { get; set; }
-        public int StudentId { get; set; }
-        public int CourseId { get; set; }
-        public int LessonsCompleted { get; set; }
-        public int TotalLessons { get; set; }
-        public double ProgressPercentage => (TotalLessons == 0) ? 0 : (LessonsCompleted / (double)TotalLessons) * 100;
-        public bool IsCompleted => ProgressPercentage >= 100;
+    public int Id { get; set; }
 
-        public virtual Student Student { get; set; }
-        public virtual Course Course { get; set; }
-    }
+    // Required relationship only with Student
+    public int StudentId { get; set; }
+    public virtual Student Student { get; set; }
+
+    // Optional relationships
+    public int? CourseId { get; set; }
+    public virtual Course? Course { get; set; }
+
+    public int? LessonId { get; set; }
+    public virtual Lesson? Lesson { get; set; }
+
+    // Progress tracking fields
+    public int LessonsCompleted { get; set; }
+    public int TotalLessons { get; set; }
+    public double CompletionPercentage { get; set; }
+    public bool IsCompleted => CompletionPercentage >= 100;
 }

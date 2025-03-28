@@ -23,9 +23,18 @@ namespace CyberSphere.DAL.Repo.Implementation
         {
             try
             {
-               await dbContext.Certificates.AddAsync(certificate);
+                var existingCertificate = await dbContext.Certificates
+                                                 .FirstOrDefaultAsync(c => c.StudentId == certificate.StudentId && c.CourseId == certificate.CourseId);
+
+                if (existingCertificate != null)
+                {
+                    return existingCertificate; // If already exists, return it.
+                }
+
+                await dbContext.Certificates.AddAsync(certificate);
                 await dbContext.SaveChangesAsync();
                 return certificate;
+
 
             }
             catch (Exception)
@@ -49,6 +58,11 @@ namespace CyberSphere.DAL.Repo.Implementation
 
                 throw;
             }
+        }
+        public async Task<bool> CertificateExists(int studentId, int courseId)
+        {
+            return await dbContext.Certificates
+                .AnyAsync(c => c.StudentId == studentId && c.CourseId == courseId);
         }
     }
 }

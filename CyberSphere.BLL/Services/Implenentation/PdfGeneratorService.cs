@@ -55,7 +55,7 @@ namespace CyberSphere.BLL.Services.Implementation
                     canvas.RestoreState();
 
                     // إضافة شعار الموقع إذا كان موجودًا
-                    string logoPath = System.IO.Path.Combine("wwwroot", "images", "logo.png");
+                    string logoPath = System.IO.Path.Combine("wwwroot", "Logo", "logo.png");
                     if (File.Exists(logoPath))
                     {
                         ImageData imageData = ImageDataFactory.Create(logoPath);

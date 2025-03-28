@@ -19,6 +19,7 @@ namespace CyberSphere.DAL.Database
         public DbSet<Level> Levels { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Certificate> Certificates { get; set; }
+        public DbSet<Progress> Progresss { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
@@ -33,6 +34,8 @@ namespace CyberSphere.DAL.Database
             modelBuilder.Entity<Level>().HasKey(l => l.Id);
             modelBuilder.Entity<Course>().HasKey(c => c.Id);
             modelBuilder.Entity<Lesson>().HasKey(l => l.Id);
+            modelBuilder.Entity<Progress>().HasKey(p => p.Id);
+
 
             modelBuilder.Entity<Level>()
                 .HasMany(l => l.Courses)
@@ -43,7 +46,8 @@ namespace CyberSphere.DAL.Database
             modelBuilder.Entity<Course>()
                 .HasMany(c => c.Lessons)
                 .WithOne(l => l.Course)
-                .HasForeignKey(l => l.CourseId);
+                .HasForeignKey(l => l.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
 
 
             modelBuilder.Entity<Level>()
@@ -58,6 +62,27 @@ namespace CyberSphere.DAL.Database
          .WithMany() // إذا لم يكن لديك قائمة طلاب داخل `ApplicationUser`
          .HasForeignKey(s => s.UserId)
          .OnDelete(DeleteBehavior.Cascade);
+
+            // ✅ علاقة Progress مع Student
+            modelBuilder.Entity<Progress>()
+                .HasOne(p => p.Student)
+                .WithMany(s => s.Progresss)
+                .HasForeignKey(p => p.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ✅ علاقة Progress مع Course
+            modelBuilder.Entity<Progress>()
+                .HasOne(p => p.Course)
+                .WithMany(c => c.Progresss)
+                .HasForeignKey(p => p.CourseId)
+                .OnDelete(DeleteBehavior.NoAction); // ✅ الحل لمنع الخطأ
+
+            // ✅ علاقة Progress مع Lesson
+            modelBuilder.Entity<Progress>()
+                .HasOne(p => p.Lesson)
+                .WithMany(l => l.Progresss)
+                .HasForeignKey(p => p.LessonId)
+                .OnDelete(DeleteBehavior.NoAction); // ✅ الحل لمنع الخطأ
         }
     }
 }

@@ -15,5 +15,7 @@ namespace CyberSphere.DAL.Entities
         public virtual List <Lesson> Lessons { get; set; }
         public int LevelId { get; set; }
         public virtual Level Level { get; set; }
+        public List<Progress> Progresss { get; set; }
+
     }
 }
