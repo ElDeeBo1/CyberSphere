@@ -28,11 +28,22 @@ namespace CyberSphere.BLL.Services.Implementation
         }
         public async Task<string> GenerateCertificate(Student student, Course course)
         {
-            var studented = await studentRepo.GetStudentById(student.Id);
-            var courseed =  courseRepo.GetCourse(course.Id);
+            if (student == null)
+            {
+                throw new ArgumentNullException(nameof(student), "Student cannot be null");
+            }
 
-            if (student == null || course == null)
-                throw new Exception("Student or Course not found");
+            var studented = await studentRepo.GetStudentById(student.Id);
+            if (studented == null)
+            {
+                throw new Exception($"Student with Id {student.Id} not found");
+            }
+
+            var courseed =  courseRepo.GetCourse(course.Id);
+            if (courseed == null)
+            {
+                throw new Exception($"Course with Id {course.Id} not found");
+            }
             // التأكد من أن مجلد الشهادات موجود
             string certificatesDirectory = System.IO.Path.Combine("wwwroot", "certificates");
             Directory.CreateDirectory(certificatesDirectory);

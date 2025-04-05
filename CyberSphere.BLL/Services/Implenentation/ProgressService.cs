@@ -21,6 +21,11 @@ namespace CyberSphere.BLL.Services.Implenentation
         {
             var progress = await progressRepo.GetStudentCoursesProgress(studentId); // استخدام الـ Repo لاسترجاع البيانات
 
+            if (progress == null || !progress.Any())
+            {
+                // Log or debug to see if data is being retrieved correctly
+                Console.WriteLine("No progress data found for student ID " + studentId);
+            }
             var progressDtoList = progress.Select(p => new Progress_ModelDTO
             {
                 CourseTitle = p.Course.Title,

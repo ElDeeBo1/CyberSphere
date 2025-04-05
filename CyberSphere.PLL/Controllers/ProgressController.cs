@@ -15,11 +15,17 @@ namespace CyberSphere.PLL.Controllers
         {
             this.progressService = progressService;
         }
+
         [HttpGet("student/{studentId}")]
         public async Task<ActionResult<List<Progress_ModelDTO>>> GetStudentProgress(int studentId)
         {
             var progress = await progressService.GetStudentProgress(studentId);
+            if (progress == null || !progress.Any())
+            {
+                return NotFound("No progress found for this student.");
+            }
             return Ok(progress);
         }
     }
+
 }

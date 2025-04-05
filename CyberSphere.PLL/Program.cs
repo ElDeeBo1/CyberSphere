@@ -1,5 +1,6 @@
 
 using CyberSphere.BLL.Mapping;
+using CyberSphere.BLL.Services.Implementation;
 using CyberSphere.BLL.Services.Implenentation;
 using CyberSphere.BLL.Services.Interface;
 using CyberSphere.DAL.Database;
@@ -33,6 +34,7 @@ namespace CyberSphere.PLL
             options.UseSqlServer(builder.Configuration.GetConnectionString("Default")),ServiceLifetime.Scoped);
 
 
+            builder.Services.AddTransient<IEmailSender, EmailService>();
 
             builder.Services.AddScoped<IArticleRepo, ArticleRepo>();    
             builder.Services.AddScoped<IArticleService,ArticleService>();
@@ -52,7 +54,14 @@ namespace CyberSphere.PLL
             builder.Services.AddScoped<IStudentRepo, StudentRepo>();
             builder.Services.AddScoped<IStudentService, StudentService>();
 
-            builder.Services.AddTransient<IEmailSender, EmailService>();
+            builder.Services.AddScoped<IProgressRepo, ProgressRepo>();
+            builder.Services.AddScoped<IProgressService, ProgressService>();
+
+            builder.Services.AddScoped<ICertificateRepo, CertificateRepo>();
+            builder.Services.AddScoped<ICertificateService, CertificateService>();
+
+            builder.Services.AddScoped<IPdfGeneratorService,PdfGeneratorService>();
+
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()

@@ -4,6 +4,7 @@ using CyberSphere.BLL.Services.Interface;
 using CyberSphere.DAL.Entities;
 using CyberSphere.DAL.Repo.Implementation;
 using CyberSphere.DAL.Repo.Interface;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,16 +16,18 @@ namespace CyberSphere.BLL.Services.Implenentation
 {
     public class CertificateService : ICertificateService
     {
-        private readonly IEmailService emailService;
+        //private readonly IEmailService emailService;
+        private readonly IEmailSender emailSender;
         private readonly ICertificateRepo certificateRepo;
         private readonly ICourseRepo courseRepo;
         private readonly IStudentRepo studentRepo;
         private readonly IPdfGeneratorService pdfGeneratorService;
         private readonly IProgressRepo progressRepo;
 
-        public CertificateService(IEmailService emailService, ICertificateRepo certificateRepo, IStudentRepo studentRepo, IPdfGeneratorService pdfGeneratorService, IProgressRepo progressRepo)
+        public CertificateService(IEmailSender emailSender, ICertificateRepo certificateRepo, IStudentRepo studentRepo, IPdfGeneratorService pdfGeneratorService, IProgressRepo progressRepo)
         {
-            this.emailService = emailService;
+            //this.emailService = emailService;
+            this.emailSender = emailSender;
             this.certificateRepo = certificateRepo;
             this.courseRepo = courseRepo;
             this.studentRepo = studentRepo;
@@ -95,7 +98,7 @@ namespace CyberSphere.BLL.Services.Implenentation
                 $"[Download Certificate](https://yourwebsite.com{certificatePath})\n\n" +
                 $"Best regards,\nCyberSphere Team";
 
-            await emailService.SendEmailAsync(progress.Student.User.Email, emailSubject, emailBody);
+            await emailSender.SendEmailAsync(progress.Student.User.Email, emailSubject, emailBody);
         }
         public async Task<List<Certificate_ModelDTO>> GetStudentCertificates(int studentId)
         {

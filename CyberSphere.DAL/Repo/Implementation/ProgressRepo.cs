@@ -31,11 +31,21 @@ namespace CyberSphere.DAL.Repo.Implementation
         //    dbContext.SaveChanges();
 
         //}
+        //public async Task<List<Progress>> GetStudentCoursesProgress(int studentId)
+        //{
+        //    return await dbContext.Progresss
+        //        .Where(p => p.StudentId == studentId && p.LessonId == null) // فقط تقدم الكورسات
+        //        .Include(p => p.Course) // جلب بيانات الكورس
+        //        .AsNoTracking()
+        //        .ToListAsync();
+        //}
+
+
         public async Task<List<Progress>> GetStudentCoursesProgress(int studentId)
         {
             return await dbContext.Progresss
-                .Where(p => p.StudentId == studentId && p.LessonId == null) // فقط تقدم الكورسات
-                .Include(p => p.Course) // جلب بيانات الكورس
+                .Where(p => p.StudentId == studentId) // Remove the LessonId filter
+                .Include(p => p.Course)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -54,6 +64,7 @@ namespace CyberSphere.DAL.Repo.Implementation
                 .Where(p => p.StudentId == studentId && p.CourseId == courseId)
                 .ToListAsync();
         }
+
 
         public async Task UpdateProgress(int studentId, int courseId, int lessonId, double completionPercentage)
         {
