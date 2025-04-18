@@ -26,7 +26,6 @@
     <Folder Include="wwwroot\Images\Article_Img\" />
     <Folder Include="wwwroot\Images\Student_Img\" />
     <Folder Include="wwwroot\certificates\" />
-    <Folder Include="wwwroot\Logo\" />
   </ItemGroup>
 
 </Project>

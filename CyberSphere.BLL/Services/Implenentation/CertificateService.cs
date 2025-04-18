@@ -69,33 +69,75 @@ namespace CyberSphere.BLL.Services.Implenentation
 
         //    await emailService.SendEmailAsync(studentemail, emailSubject, emailBody);
         //}
-        public async Task CheckAndGenerateCertificate(int studentId, int courseId)
-        {
-            var progress = await progressRepo.GetProgress(studentId, courseId);
-            if (progress == null || !progress.IsCompleted) return; // ❌ لم يكتمل الكورس بعد
+        //public async Task CheckAndGenerateCertificate(int studentId, int courseId)
+        //{
+        //    var progress = await progressRepo.GetProgress(studentId, courseId);
+        //    if (progress == null || !progress.IsCompleted) return; // ❌ لم يكتمل الكورس بعد
 
-            var exist = await certificateRepo.CertificateExists(studentId, courseId);
-            if (exist) return; // ❌ الشهادة موجودة بالفعل
+        //    var exist = await certificateRepo.CertificateExists(studentId, courseId);
+        //    if (exist) return; // ❌ الشهادة موجودة بالفعل
 
-            string certificatePath = await pdfGeneratorService.GenerateCertificate(progress.Student, progress.Course);
+        //    string certificatePath = await pdfGeneratorService.GenerateCertificate(progress.Student, progress.Course);
 
-            // ✅ حفظ الشهادة في قاعدة البيانات
-            var certificate = new Certificate
+        //    // ✅ حفظ الشهادة في قاعدة البيانات
+        //    var certificate = new Certificate
+        //    {
+        //        StudentId = studentId,
+        //        CourseId = courseId,
+        //        IssuedAt = DateTime.UtcNow,
+        //        CertificateURL = certificatePath
+        //    };
+
+        //    await certificateRepo.CreateCertificate(certificate);
+
+
+            public async Task CheckAndGenerateCertificate(int studentId, int courseId)
             {
-                StudentId = studentId,
-                CourseId = courseId,
-                IssuedAt = DateTime.UtcNow,
-                CertificateURL = certificatePath
-            };
+                // 1. التحقق من وجود تقدم للطالب في الكورس المحدد
+                var progress = await progressRepo.GetProgress(studentId, courseId);
+                if (progress == null || !progress.IsCompleted)
+                {
+                    // الكورس غير مكتمل أو لا يوجد تقدم
+                    return;
+                }
 
-            await certificateRepo.CreateCertificate(certificate);
+                // 2. التحقق من وجود الشهادة بالفعل
+                //var exist = await certificateRepo.CertificateExists(studentId, courseId);
+                //if (exist)
+                //{
+                //    // الشهادة موجودة بالفعل
+                //    return;
+                //}
+
+                //// 3. التحقق من أن الـ ProgressId موجود بشكل صحيح
+                //if (progress.Id == 0)
+                //{
+                //    // في حالة إذا كان الـ ProgressId غير صالح أو مفقود
+                //    throw new Exception("Progress record is not valid or missing.");
+                //}
+
+                // 4. توليد الشهادة
+                string certificatePath = await pdfGeneratorService.GenerateCertificate(progress.Student, progress.Course);
+
+                // 5. حفظ الشهادة في قاعدة البيانات
+                var certificate = new Certificate
+                {
+                    StudentId = studentId,
+                    CourseId = courseId,
+                    IssuedAt = DateTime.UtcNow,
+                    CertificateURL = certificatePath,
+                    ProgressId = progress.Id // التأكد من ربط الـ ProgressId بالشهادة
+                };
+
+                await certificateRepo.CreateCertificate(certificate);
+            
 
             // ✅ إرسال الشهادة عبر البريد الإلكتروني
             string emailSubject = "🎉 Congratulations! Your Course Certificate is Ready!";
             string emailBody = $"Dear {progress.Student.FirstName},\n\n" +
                 $"Congratulations on completing the {progress.Course.Title} course! 🎓\n\n" +
                 $"You can download your certificate from the link below:\n" +
-                $"[Download Certificate](https://yourwebsite.com{certificatePath})\n\n" +
+                $"[Download Certificate](https://localhost:7089/{certificatePath})\n\n" +
                 $"Best regards,\nCyberSphere Team";
 
             await emailSender.SendEmailAsync(progress.Student.User.Email, emailSubject, emailBody);

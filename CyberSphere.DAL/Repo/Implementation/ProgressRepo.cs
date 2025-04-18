@@ -51,11 +51,19 @@ namespace CyberSphere.DAL.Repo.Implementation
         }
 
 
+        //public async Task<Progress> GetProgress(int studentId, int courseId)
+        //{
+        //    return await dbContext.Progresss
+        //        .Where(p => p.StudentId == studentId && p.CourseId == courseId)
+        //        .FirstOrDefaultAsync();
+        //}
         public async Task<Progress> GetProgress(int studentId, int courseId)
         {
             return await dbContext.Progresss
-                .Where(p => p.StudentId == studentId && p.CourseId == courseId)
-                .FirstOrDefaultAsync();
+                .Include(p => p.Student)
+                    .ThenInclude(s => s.User) // لو بتستخدم User مرتبط بالطالب
+                .Include(p => p.Course)
+                .FirstOrDefaultAsync(p => p.StudentId == studentId && p.CourseId == courseId);
         }
 
         public async Task<List<Progress>> GetStudentCourseLessonsProgress(int studentId, int courseId)
