@@ -13,6 +13,7 @@ namespace CyberSphere.DAL.Database
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Student> Students { get; set; }
+        public DbSet<Skill> Skills { get; set; }
         public DbSet<Article> Articles { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<Course> Courses { get; set; }

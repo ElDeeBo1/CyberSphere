@@ -4,6 +4,7 @@ using CyberSphere.BLL.DTO.BookDTO;
 using CyberSphere.BLL.DTO.CourseDTO;
 using CyberSphere.BLL.DTO.LessonDTO;
 using CyberSphere.BLL.DTO.LevelDTO;
+using CyberSphere.BLL.DTO.SkillDTO;
 using CyberSphere.BLL.DTO.StudentDTO;
 using CyberSphere.DAL.Entities;
 using System;
@@ -93,8 +94,13 @@ namespace CyberSphere.BLL.Mapping
     .ForMember(dst => dst.UserName, opt => opt.MapFrom(src => src.User.UserName))
     .ForMember(dst => dst.ProfilePictureURL, opt => opt.MapFrom(src => src.ProfilePictureURL));
 
-
-
+            CreateMap<Skill, AddSkillDTO>().ForMember(dst => dst.StudentId, opt => opt.MapFrom(src => src.StudentId))
+                .ReverseMap();
+            CreateMap<Skill, UpdateSkillDTO>().ReverseMap();
+            CreateMap<Skill,GetSkillDTO>().ReverseMap();
+            //CreateMap<Skill, GetAllSkillsDTO>()
+            //   .ForMember(dst => dst.StudentId, opt => opt.MapFrom(src => src.StudentId));
+            CreateMap<Skill, GetSkillDTO>();
         }
 
 

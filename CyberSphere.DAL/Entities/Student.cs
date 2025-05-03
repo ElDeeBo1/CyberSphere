@@ -20,5 +20,7 @@ namespace CyberSphere.DAL.Entities
         public List<Certificate> Certificates { get; set; }
         public List<Progress> Progresss { get; set; }   
         public ApplicationUser User { get; set; }
+
+        public List<Skill> Skills { get; set; } = new();
     }
 }

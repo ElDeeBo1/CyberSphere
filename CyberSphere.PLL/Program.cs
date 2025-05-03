@@ -62,6 +62,8 @@ namespace CyberSphere.PLL
 
             builder.Services.AddScoped<IPdfGeneratorService,PdfGeneratorService>();
 
+            builder.Services.AddScoped<ISkillRepo, SkillRepo>();
+            builder.Services.AddScoped<ISkillService, SkillService>();
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()

@@ -1,4 +1,5 @@
-﻿using CyberSphere.DAL.Entities;
+﻿using CyberSphere.BLL.DTO.SkillDTO;
+using CyberSphere.DAL.Entities;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace CyberSphere.BLL.DTO.StudentDTO
         public string Address { get; set; }
         public string About { get; set; }
         public string? ProfilePictureURL { get; set; }
+        public List<GetAllSkillsDTO> AllSkills { get; set; }
 
 
     }
