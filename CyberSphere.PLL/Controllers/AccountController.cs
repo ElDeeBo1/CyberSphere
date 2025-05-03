@@ -45,133 +45,10 @@ namespace CyberSphere.PLL.Controllers
             this.emailSender = emailSender;
             this.studentservice = studentservice;
         }
-        //[Authorize(Roles = "Admin")]
-        //[HttpGet("Get-login-userid")]
         private string GetLoginedUserId()
         {
             return User?.FindFirstValue(ClaimTypes.NameIdentifier);
         }
-        //[HttpPost("Register")] oldest version
-        //public async Task<IActionResult> Register(RegisterDTO registerDTO)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-
-        //        ApplicationUser user = new ApplicationUser();
-        //        user.Email = registerDTO.Email;
-        //        user.UserName = registerDTO.UserName;
-
-        //        IdentityResult result = await userManager.CreateAsync(user, registerDTO.Password);
-        //        if (result.Succeeded)
-        //        {
-        //            user = await userManager.FindByEmailAsync(registerDTO.Email);
-
-        //            if (user == null || string.IsNullOrEmpty(user.Id))
-        //            {
-        //                return BadRequest("Failed to retrieve user ID.");
-        //            }
-        //            var studented = new Student
-        //            {
-        //                FirstName = "", // يمكن إضافتها لاحقًا عند التحديث
-        //                LastName = "",
-        //                Age = 0,
-        //                PhoneNumber = "",
-        //                Address = "",
-        //                UniversityName = "",
-        //                ProfilePictureURL = null,
-        //                UserId = user.Id // ربط الطالب بالمستخدم
-        //            };
-        //            var entity = mapper.Map<AddStudentDTO>(studented);
-        //            await  studentservice.AddStudent(entity);
-
-        //            //await userManager.SetTwoFactorEnabledAsync(user,true);
-        //            await userManager.SetTwoFactorEnabledAsync(user, true);
-        //            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        //            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = user.Email }, Request.Scheme, Request.Host.ToString());
-
-
-        //            var subject = "Confirm your email";
-        //            var message = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>";
-        //            await emailSender.SendEmailAsync(user.Email, subject, message);
-        //            return Ok($"We send email confirmation in {user.Email}  & User Created Successfully");
-        //        }
-        //        foreach (var item in result.Errors)
-        //        {
-        //            ModelState.AddModelError("Password", item.Description);
-        //        }
-
-        //    }
-        //    return BadRequest(ModelState);
-        //}
-
-        //[HttpPost("Register")]  second version
-        //public async Task<IActionResult> Register(RegisterDTO registerDTO)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    // إنشاء المستخدم
-        //    var user = new ApplicationUser
-        //    {
-        //        Email = registerDTO.Email,
-        //        UserName = registerDTO.UserName
-        //    };
-
-        //    IdentityResult result = await userManager.CreateAsync(user, registerDTO.Password);
-        //    if (!result.Succeeded)
-        //    {
-        //        foreach (var item in result.Errors)
-        //        {
-        //            ModelState.AddModelError("Password", item.Description);
-        //        }
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    // جلب المستخدم بعد الإنشاء
-        //    var createdUser = await userManager.FindByEmailAsync(registerDTO.Email);
-        //    if (createdUser == null || string.IsNullOrEmpty(createdUser.Id))
-        //    {
-        //        return BadRequest("Failed to retrieve user ID.");
-        //    }
-
-        //    // إنشاء سجل الطالب وربطه بالمستخدم
-        //    var studentEntity = new Student
-        //    {
-        //        FirstName = "",
-        //        LastName = "",
-        //        Age = 0,
-        //        PhoneNumber = "",
-        //        Address = "",
-        //        UniversityName = "",
-        //        ProfilePictureURL = null,
-        //        UserId = createdUser.Id
-        //    };
-
-        //    var studentDto = mapper.Map<AddStudentDTO>(studentEntity);
-
-        //    // إضافة الطالب باستخدام نطاق جديد
-        //    using (var scope = serviceScopeFactory.CreateScope())
-        //    {
-        //        var scopedStudentService = scope.ServiceProvider.GetRequiredService<IStudentService>();
-        //        await scopedStudentService.AddStudent(studentDto);
-        //    }
-
-        //    // تمكين التحقق الثنائي
-        //    await userManager.SetTwoFactorEnabledAsync(createdUser, true);
-
-        //    // إنشاء رابط تأكيد البريد الإلكتروني
-        //    var token = await userManager.GenerateEmailConfirmationTokenAsync(createdUser);
-        //    var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = createdUser.Email }, Request.Scheme, Request.Host.ToString());
-
-        //    // إرسال البريد الإلكتروني
-        //    var subject = "Confirm your email";
-        //    var message = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>";
-        //    await emailSender.SendEmailAsync(createdUser.Email, subject, message);
-
-        //    return Ok($"We send email confirmation to {createdUser.Email} & User Created Successfully");
-        //}
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register(RegisterDTO registerDTO)
@@ -232,7 +109,28 @@ namespace CyberSphere.PLL.Controllers
 
                         // ✅ 5. إرسال البريد الإلكتروني
                         var subject = "Confirm your email";
-                        var message = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>";
+                        //  var message = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>";
+                        var logoUrl = "https://i.postimg.cc/pV9hHqgm/cyberooo.png";
+
+                        var message = $@"
+    <div style='font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 30px;'>
+        <div style='max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);'>
+            <div style='text-align: center; margin-bottom: 20px;'>
+                <img src='{logoUrl}' alt='Logo' style='max-width: 150px;'>
+            </div>
+            <h2 style='text-align: center; color: #333;'>Confirm Your Email</h2>
+            <p>Hi <strong>{user.UserName}</strong>,</p>
+            <p>Thanks for registering with us! Please click the button below to confirm your email address and activate your account.</p>
+            <div style='text-align: center; margin: 30px 0;'>
+                <a href='{confirmationLink}' style='background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Confirm Email</a>
+            </div>
+            <p>If the button doesn't work, copy and paste the following link into your browser:</p>
+            <p><a href='{confirmationLink}' style='color: #007bff;'>{confirmationLink}</a></p>
+            <hr style='margin: 30px 0; border: none; border-top: 1px solid #eaeaea;' />
+            <p style='font-size: 12px; color: #888;'>If you did not create this account, you can safely ignore this email.</p>
+        </div>
+    </div>";
+
                         await emailSender.SendEmailAsync(user.Email, subject, message);
 
                         // ✅ 6. حفظ كل العمليات في قاعدة البيانات دفعة واحدة
@@ -277,8 +175,26 @@ namespace CyberSphere.PLL.Controllers
                         await signInManager.SignOutAsync();
                         await signInManager.PasswordSignInAsync(user, Reqestuser.Password, false, true);
                         var tokenConfirm = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
+                          var logoUrl = "https://i.postimg.cc/pV9hHqgm/cyberooo.png";
                         var subject = "Your OTP Code";
-                        var message = $"Dear {user.UserName}, your OTP is: <b>{tokenConfirm}</b>";
+                        var message = $@"
+<div style='font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 30px;'>
+    <div style='max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);'>
+        <div style='text-align: center; margin-bottom: 20px;'>
+            <img src='{logoUrl}' alt='Logo' style='max-width: 150px;' />
+        </div>
+        <h2 style='text-align: center; color: #333;'>Your OTP Code</h2>
+        <p>Hi <strong>{user.UserName}</strong>,</p>
+        <p>Your One-Time Password (OTP) is:</p>
+        <div style='text-align: center; margin: 30px 0;'>
+            <div style='display: inline-block; background-color: #007bff; color: white; padding: 15px 25px; font-size: 20px; border-radius: 8px; letter-spacing: 3px; font-weight: bold;'>
+                {tokenConfirm}
+            </div>
+        </div>
+        <p>Please enter this code to complete your verification process.</p>
+        <p style='font-size: 12px; color: #888;'>If you didn't request this, you can safely ignore the email.</p>
+    </div>
+</div>";
                         await emailSender.SendEmailAsync(user.Email, subject, message);
                         return Ok($"We have send otp to your email{user.Email}");
                     }
@@ -379,8 +295,26 @@ namespace CyberSphere.PLL.Controllers
             {
                 var token = await userManager.GeneratePasswordResetTokenAsync(user);
                 var forgetpasswordlink = Url.Action(nameof(ResetPassword), "Account", new { token, email = user.Email }, Request.Scheme, Request.Host.ToString());
-                var subject = "Forget Password ";
-                var message = $"We redirect you to reset password  by clicking this link: <a href='{forgetpasswordlink}'>Reset Password</a>";
+                var subject = "Reset Password ";
+                var logoUrl = "https://i.postimg.cc/pV9hHqgm/cyberooo.png";
+
+                var message = $@"
+<div style='font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 30px;'>
+    <div style='max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);'>
+        <div style='text-align: center; margin-bottom: 20px;'>
+            <img src='{logoUrl}' alt='Logo' style='max-width: 150px;' />
+        </div>
+        <h2 style='text-align: center; color: #333;'>Reset Your Password</h2>
+        <p>Hi <strong>{user.UserName}</strong>,</p>
+        <p>Click the button below to reset your password:</p>
+        <div style='text-align: center; margin: 30px 0;'>
+            <a href='{forgetpasswordlink}' style='background-color: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Reset Password</a>
+        </div>
+        <p>If the button doesn't work, copy and paste the following link into your browser:</p>
+        <p><a href='{forgetpasswordlink}'>{forgetpasswordlink}</a></p>
+        <p style='font-size: 12px; color: #888;'>If you didn't request this, you can safely ignore the email.</p>
+    </div>
+</div>";
                 await emailSender.SendEmailAsync(user.Email, subject, message);
                 return Ok($"We send a Reset password link in your email  {user.Email}  .. plz click on this link");
 

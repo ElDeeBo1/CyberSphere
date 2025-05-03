@@ -1,4 +1,5 @@
-﻿using CyberSphere.BLL.DTO.CertificateDTO;
+﻿
+using CyberSphere.BLL.DTO.CertificateDTO;
 using CyberSphere.BLL.Services.Implementation;
 using CyberSphere.BLL.Services.Interface;
 using CyberSphere.DAL.Entities;
@@ -91,46 +92,46 @@ namespace CyberSphere.BLL.Services.Implenentation
         //    await certificateRepo.CreateCertificate(certificate);
 
 
-            public async Task CheckAndGenerateCertificate(int studentId, int courseId)
+        public async Task CheckAndGenerateCertificate(int studentId, int courseId)
+        {
+            // 1. التحقق من وجود تقدم للطالب في الكورس المحدد
+            var progress = await progressRepo.GetProgress(studentId, courseId);
+            if (progress == null || !progress.IsCompleted)
             {
-                // 1. التحقق من وجود تقدم للطالب في الكورس المحدد
-                var progress = await progressRepo.GetProgress(studentId, courseId);
-                if (progress == null || !progress.IsCompleted)
-                {
-                    // الكورس غير مكتمل أو لا يوجد تقدم
-                    return;
-                }
+                // الكورس غير مكتمل أو لا يوجد تقدم
+                return;
+            }
 
-                // 2. التحقق من وجود الشهادة بالفعل
-                //var exist = await certificateRepo.CertificateExists(studentId, courseId);
-                //if (exist)
-                //{
-                //    // الشهادة موجودة بالفعل
-                //    return;
-                //}
+            // 2. التحقق من وجود الشهادة بالفعل
+            //var exist = await certificateRepo.CertificateExists(studentId, courseId);
+            //if (exist)
+            //{
+            //    // الشهادة موجودة بالفعل
+            //    return;
+            //}
 
-                //// 3. التحقق من أن الـ ProgressId موجود بشكل صحيح
-                //if (progress.Id == 0)
-                //{
-                //    // في حالة إذا كان الـ ProgressId غير صالح أو مفقود
-                //    throw new Exception("Progress record is not valid or missing.");
-                //}
+            //// 3. التحقق من أن الـ ProgressId موجود بشكل صحيح
+            //if (progress.Id == 0)
+            //{
+            //    // في حالة إذا كان الـ ProgressId غير صالح أو مفقود
+            //    throw new Exception("Progress record is not valid or missing.");
+            //}
 
-                // 4. توليد الشهادة
-                string certificatePath = await pdfGeneratorService.GenerateCertificate(progress.Student, progress.Course);
+            // 4. توليد الشهادة
+            string certificatePath = await pdfGeneratorService.GenerateCertificate(progress.Student, progress.Course);
 
-                // 5. حفظ الشهادة في قاعدة البيانات
-                var certificate = new Certificate
-                {
-                    StudentId = studentId,
-                    CourseId = courseId,
-                    IssuedAt = DateTime.UtcNow,
-                    CertificateURL = certificatePath,
-                    ProgressId = progress.Id // التأكد من ربط الـ ProgressId بالشهادة
-                };
+            // 5. حفظ الشهادة في قاعدة البيانات
+            var certificate = new Certificate
+            {
+                StudentId = studentId,
+                CourseId = courseId,
+                IssuedAt = DateTime.UtcNow,
+                CertificateURL = certificatePath,
+                ProgressId = progress.Id // التأكد من ربط الـ ProgressId بالشهادة
+            };
 
-                await certificateRepo.CreateCertificate(certificate);
-            
+            await certificateRepo.CreateCertificate(certificate);
+
 
             // ✅ إرسال الشهادة عبر البريد الإلكتروني
             string emailSubject = "🎉 Congratulations! Your Course Certificate is Ready!";

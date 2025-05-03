@@ -1,6 +1,5 @@
 ﻿using CyberSphere.BLL.Services.Interface;
 using CyberSphere.DAL.Entities;
-using CyberSphere.DAL.Migrations;
 using CyberSphere.DAL.Repo.Interface;
 using iText.IO.Image;
 using iText.Kernel.Colors;
@@ -28,6 +27,7 @@ namespace CyberSphere.BLL.Services.Implementation
             this.studentRepo = studentRepo;
             this.courseRepo = courseRepo;
         }
+
         public async Task<string> GenerateCertificate(Student student, Course course)
         {
             if (student == null)
@@ -46,11 +46,10 @@ namespace CyberSphere.BLL.Services.Implementation
             {
                 throw new Exception($"Course with Id {course.Id} not found");
             }
-            // التأكد من أن مجلد الشهادات موجود
+
             string certificatesDirectory = System.IO.Path.Combine("wwwroot", "certificates");
             Directory.CreateDirectory(certificatesDirectory);
 
-            // تحديد مسار حفظ ملف الشهادة
             string certificatePath = System.IO.Path.Combine(certificatesDirectory, $"{student.Id}_{course.Id}.pdf");
 
             using (var writer = new PdfWriter(certificatePath))
@@ -60,13 +59,17 @@ namespace CyberSphere.BLL.Services.Implementation
                     var pageSize = PageSize.A4.Rotate();
                     var document = new Document(pdf, pageSize);
 
-                    // Add navy blue and gold border
+                    // Add navy blue wave-like border
                     PdfCanvas canvas = new PdfCanvas(pdf.AddNewPage());
                     canvas.SaveState();
-
-                    // Outer navy blue border
                     canvas.SetFillColor(new DeviceRgb(0, 0, 128)); // Navy blue
-                    canvas.Rectangle(0, 0, pageSize.GetWidth(), pageSize.GetHeight());
+                    canvas.MoveTo(0, 0);
+                    canvas.CurveTo(50, 50, 100, 150, 150, 200); // Simplified wave effect
+                    canvas.LineTo(pageSize.GetWidth() - 150, 200);
+                    canvas.CurveTo(pageSize.GetWidth() - 100, 150, pageSize.GetWidth() - 50, 50, pageSize.GetWidth(), 0);
+                    canvas.LineTo(pageSize.GetWidth(), pageSize.GetHeight());
+                    canvas.LineTo(0, pageSize.GetHeight());
+                    canvas.ClosePath();
                     canvas.Fill();
 
                     // Inner white background with gold border
@@ -79,145 +82,134 @@ namespace CyberSphere.BLL.Services.Implementation
 
                     canvas.RestoreState();
 
-                    // Load custom fonts (replace with actual font paths)
-                    PdfFont titleFont = PdfFontFactory.CreateFont("Helvetica-Bold"); // Use a serif font like Times New Roman if available
-                    PdfFont bodyFont = PdfFontFactory.CreateFont("Helvetica"); // Regular font
-                    PdfFont signatureFont = PdfFontFactory.CreateFont("Helvetica"); // Use a cursive font like Zapfino or similar
+                    // Load custom fonts
+                    PdfFont titleFont = PdfFontFactory.CreateFont("Helvetica-Bold");
+                    PdfFont bodyFont = PdfFontFactory.CreateFont("Helvetica");
+                    PdfFont signatureFont = PdfFontFactory.CreateFont("Helvetica-Oblique"); // Cursive-like style
 
                     // Add logo at the top center
-                    string logoPath = System.IO.Path.Combine("wwwroot", "Logo", "logo.png");
-                    if (File.Exists(logoPath))
-                    {
-                        ImageData imageData = ImageDataFactory.Create(logoPath);
-                        Image logo = new Image(imageData)
-                            .SetAutoScale(true)
-                            .SetWidth(20)
-                            .SetHorizontalAlignment(HorizontalAlignment.CENTER)
-                            .SetMarginTop(20);
-                        document.Add(logo);
-                    }
-
-                    // Add "Company name" placeholder
-                    document.Add(new Paragraph("Cyber Sphere")
-                        .SetFont(bodyFont)
-                        .SetFontSize(12)
-                        .SetTextAlignment(TextAlignment.CENTER)
-                        .SetMarginTop(10));
+                    //string logoPath = System.IO.Path.Combine("wwwroot", "Logo", "logo.png");
+                    //if (File.Exists(logoPath))
+                    //{
+                    //    ImageData imageData = ImageDataFactory.Create(logoPath);
+                    //    Image logo = new Image(imageData)
+                    //        .SetAutoScale(true)
+                    //        .SetWidth(35)
+                    //        .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+                    //        .SetMarginTop(15);
+                    //    document.Add(logo);
+                    //}
 
                     // Certificate title
-                    document.Add(new Paragraph("Certificate of participation")
+                    document.Add(new Paragraph("CERTIFICATE OF ACHIEVEMENT")
                         .SetFont(titleFont)
-                        .SetFontSize(28)
+                        .SetFontSize(36)
                         .SetTextAlignment(TextAlignment.CENTER)
-                        .SetFontColor(new DeviceRgb(0, 0, 128)) // Navy blue
-                        .SetMarginTop(20));
+                        .SetFontColor(new DeviceRgb(0, 0, 0))
+                        .SetMarginTop(30));
 
-                    // "THIS IS TO CERTIFY THAT"
-                    document.Add(new Paragraph("THIS IS TO CERTIFY THAT")
-                        .SetFont(bodyFont)
-                        .SetFontSize(12)
+                    // Decorative line
+                    document.Add(new Paragraph(new Text("\u007E\u007E").SetFontSize(24)) // ~~ as a simple decoration
                         .SetTextAlignment(TextAlignment.CENTER)
-                        .SetFontColor(new DeviceRgb(218, 165, 32)) // Gold
                         .SetMarginTop(10));
+
+                    // "THIS CERTIFICATE IS PROUDLY PRESENTED TO"
+                    document.Add(new Paragraph("THIS CERTIFICATE IS PROUDLY PRESENTED TO")
+                        .SetFont(bodyFont)
+                        .SetFontSize(14)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetFontColor(new DeviceRgb(0, 0, 128))
+                        .SetMarginTop(20));
 
                     // Recipient name
                     document.Add(new Paragraph($"{student.FirstName} {student.LastName}")
                         .SetFont(signatureFont)
-                        .SetFontSize(36)
+                        .SetFontSize(28)
                         .SetTextAlignment(TextAlignment.CENTER)
-                        .SetFontColor(new DeviceRgb(0, 0, 128)) // Navy blue
+                        .SetFontColor(new DeviceRgb(0, 0, 128))
                         .SetMarginTop(10));
 
                     // Certificate description
-                    string description = $"successfully completed the \"{course.Title}\" course, demonstrating commitment, active participation, and a strong willingness to learn throughout the training period.";
-
+                    string description = $"successfully completed the \"{course.Title}\" course with dedication and excellence, demonstrating outstanding skills and commitment.";
                     document.Add(new Paragraph(description)
                         .SetFont(bodyFont)
-                        .SetFontSize(14)
+                        .SetFontSize(12)
                         .SetTextAlignment(TextAlignment.CENTER)
-                        .SetFontColor(new DeviceRgb(218, 165, 32)) // Gold
+                        .SetFontColor(new DeviceRgb(0, 0, 0))
                         .SetMarginTop(20)
                         .SetMultipliedLeading(1.2f));
 
                     // Signatures and seal
-                    // Add seal image (replace with actual seal image path)
-                    string sealPath = System.IO.Path.Combine("wwwroot", "Logo", "logo.PNG");
-                    if (File.Exists(sealPath))
-                    {
-                        ImageData sealData = ImageDataFactory.Create(sealPath);
-                        Image seal = new Image(sealData)
-                            .SetAutoScale(true)
-                            .SetWidth(80)
-                            .SetHorizontalAlignment(HorizontalAlignment.CENTER)
-                            .SetMarginTop(20);
-                        document.Add(seal);
-                    }
-                    else
-                    {
-                        // Placeholder for seal text
-                        document.Add(new Paragraph("ATTENDED 2025")
-                            .SetFont(bodyFont)
-                            .SetFontSize(10)
-                            .SetTextAlignment(TextAlignment.CENTER)
-                            .SetMarginTop(20));
-                    }
+                    Table signatureTable = new Table(UnitValue.CreatePercentArray(new float[] { 30, 40, 30 })).UseAllAvailableWidth();
+                    signatureTable.SetMarginTop(50);
 
-                    // Signature lines
-                    Table table = new Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();
-                    table.SetMarginTop(10);
-
-                    // Left signature (Manager)
+                    // Left signature
                     Cell leftCell = new Cell()
                         .SetBorder(Border.NO_BORDER)
                         .SetTextAlignment(TextAlignment.CENTER);
-                    string managerSigPath = System.IO.Path.Combine("wwwroot", "Logo", "signature1.png");
-                    if (File.Exists(managerSigPath))
+                    string leftSigPath = System.IO.Path.Combine("wwwroot", "Logo", "signature1.png");
+                    if (File.Exists(leftSigPath))
                     {
-                        ImageData sigData = ImageDataFactory.Create(managerSigPath);
+                        ImageData sigData = ImageDataFactory.Create(leftSigPath);
                         Image sigImage = new Image(sigData)
                             .SetAutoScale(true)
                             .SetWidth(100);
                         leftCell.Add(sigImage);
                     }
-                    leftCell.Add(new Paragraph("DR. AHMED RABEA")
+                    leftCell.Add(new Paragraph("Rufus Stewart")
                         .SetFont(bodyFont)
                         .SetFontSize(12));
-                    leftCell.Add(new Paragraph("Manager")
+                    leftCell.Add(new Paragraph("REPRESENTATIVES")
                         .SetFont(bodyFont)
                         .SetFontSize(10));
-                    table.AddCell(leftCell);
+                    signatureTable.AddCell(leftCell);
 
-                    // Right signature (Director)
+                    // Center seal
+                    Cell centerCell = new Cell()
+                        .SetBorder(Border.NO_BORDER)
+                        .SetTextAlignment(TextAlignment.CENTER);
+                    string sealPath = System.IO.Path.Combine("wwwroot", "Logo", "seal.png");
+                    if (File.Exists(sealPath))
+                    {
+                        ImageData sealData = ImageDataFactory.Create(sealPath);
+                        Image seal = new Image(sealData)
+                            .SetAutoScale(true)
+                            .SetWidth(80);
+                        centerCell.Add(seal);
+                    }
+                    signatureTable.AddCell(centerCell);
+
+                    // Right signature
                     Cell rightCell = new Cell()
                         .SetBorder(Border.NO_BORDER)
                         .SetTextAlignment(TextAlignment.CENTER);
-                    string directorSigPath = System.IO.Path.Combine("wwwroot", "Logo", "signature2.png");
-                    if (File.Exists(directorSigPath))
+                    string rightSigPath = System.IO.Path.Combine("wwwroot", "Logo", "signature2.png");
+                    if (File.Exists(rightSigPath))
                     {
-                        ImageData sigData = ImageDataFactory.Create(directorSigPath);
+                        ImageData sigData = ImageDataFactory.Create(rightSigPath);
                         Image sigImage = new Image(sigData)
                             .SetAutoScale(true)
                             .SetWidth(100);
                         rightCell.Add(sigImage);
                     }
-                    rightCell.Add(new Paragraph("WAEL ABD ELKADER")
+                    rightCell.Add(new Paragraph("Olivia Wilson")
                         .SetFont(bodyFont)
                         .SetFontSize(12));
-                    rightCell.Add(new Paragraph("Director")
+                    rightCell.Add(new Paragraph("REPRESENTATIVES")
                         .SetFont(bodyFont)
                         .SetFontSize(10));
-                    table.AddCell(rightCell);
+                    signatureTable.AddCell(rightCell);
 
-                    document.Add(table);
+                    document.Add(signatureTable);
 
-                    // Certificate ID and issuing date
+                    // Footer with Certificate ID and Issuing Date
                     Table footerTable = new Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();
                     footerTable.SetMarginTop(20);
 
                     footerTable.AddCell(new Cell()
                         .SetBorder(Border.NO_BORDER)
                         .SetTextAlignment(TextAlignment.LEFT)
-                        .Add(new Paragraph($"Certificate ID: 46820385043")
+                        .Add(new Paragraph($"Certificate ID: {student.Id}-{course.Id}")
                             .SetFont(bodyFont)
                             .SetFontSize(10)
                             .SetMarginLeft(20)));
@@ -225,7 +217,7 @@ namespace CyberSphere.BLL.Services.Implementation
                     footerTable.AddCell(new Cell()
                         .SetBorder(Border.NO_BORDER)
                         .SetTextAlignment(TextAlignment.RIGHT)
-                        .Add(new Paragraph($"Issuing Date:{DateTime.UtcNow}")
+                        .Add(new Paragraph($"Issuing Date: {DateTime.Now:MMMM dd, yyyy}")
                             .SetFont(bodyFont)
                             .SetFontSize(10)
                             .SetMarginRight(20)));
@@ -235,10 +227,9 @@ namespace CyberSphere.BLL.Services.Implementation
                     document.Close();
                 }
             }
-            // إرجاع المسار النسبي للشهادة ليتمكن المستخدم من تحميلها
+
             string relativePath = certificatePath.Replace("wwwroot", "").Replace("\\", "/");
             return relativePath;
         }
     }
 }
-
