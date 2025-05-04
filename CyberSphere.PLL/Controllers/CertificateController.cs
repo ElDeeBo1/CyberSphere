@@ -1,6 +1,7 @@
 ﻿
 using CyberSphere.BLL.DTO.CertificateDTO;
 using CyberSphere.BLL.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,7 @@ namespace CyberSphere.PLL.Controllers
         {
             this.certificateService = certificateService;
         }
+        [Authorize]
         [HttpGet("student/{studentId}")]
         public async Task<ActionResult<List<Certificate_ModelDTO>>> GetStudentCertificates(int studentId)
         {
@@ -23,7 +25,7 @@ namespace CyberSphere.PLL.Controllers
             return Ok(certificates);
         }
 
-        // ✅ التحقق من إكمال الكورس وإصدار الشهادة تلقائيًا
+        [Authorize(Roles = "Admin")]
         [HttpPost("generate")]
         public async Task<IActionResult> GenerateCertificate([FromBody] CertificateRequestDTO request)
         {
@@ -32,7 +34,7 @@ namespace CyberSphere.PLL.Controllers
         }
     }
 
-    // ✅ DTO لاستقبال البيانات عند إصدار الشهادة
+
     public class CertificateRequestDTO
     {
         public int StudentId { get; set; }

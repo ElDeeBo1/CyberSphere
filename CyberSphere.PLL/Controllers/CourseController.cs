@@ -1,5 +1,6 @@
 ﻿using CyberSphere.BLL.DTO.CourseDTO;
 using CyberSphere.BLL.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,6 +28,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("can not view");
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("add-course")]
         public IActionResult CreateCourse(CreateCourseDTO courseDTO)
         {
@@ -48,6 +50,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("erorr !11111111");
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         public IActionResult DeleteCourse(int id)
         {
@@ -59,6 +62,7 @@ namespace CyberSphere.PLL.Controllers
             return BadRequest("error when delete");
 
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public IActionResult UpdateCourse(int id,[FromForm]UpdateCourseDTO courseDTO)
         {

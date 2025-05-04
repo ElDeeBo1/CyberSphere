@@ -1,5 +1,6 @@
 ﻿using CyberSphere.BLL.DTO.ArticleDTO;
 using CyberSphere.BLL.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,7 @@ namespace CyberSphere.PLL.Controllers
         {
             this.articleService = articleService;
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("create-article")]
         public IActionResult CreateArticle([FromForm] CreateArticleDTO articleDTO)
         {
@@ -52,6 +54,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("ther are no articles to show");
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]     
         //[Consumes("multipart/form-data")]
         public IActionResult UpdateArticle(int id, [FromForm] UpdateArticleDTO updateArticleDTO)
@@ -68,6 +71,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("!!!!!!!!!!Error!!!!!!");
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         public IActionResult DeleteArticle(int id)
         {

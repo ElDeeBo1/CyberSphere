@@ -349,9 +349,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("user not found");
         }
-
-        [Authorize]
-
+        [Authorize(Roles ="Admin")]
         [HttpPost("add-role")]
         public async Task<IActionResult> AddRole(string role)
         {
@@ -368,7 +366,7 @@ namespace CyberSphere.PLL.Controllers
 
 
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("assign-role")]
         public async Task<IActionResult> AssignRole(RoleDTO roleDTO)
         {

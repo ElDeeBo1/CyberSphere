@@ -2,6 +2,7 @@
 
 using CyberSphere.BLL.Services.Implementation;
 using CyberSphere.BLL.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
@@ -17,6 +18,7 @@ namespace CyberSphere.PLL.Controllers
         {
             this.skillService = skillService;
         }
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddSkill(AddSkillDTO skillDTO)
         {
@@ -27,6 +29,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("can not add skills to students");
         }
+        [Authorize]
         [HttpGet("get-skill-by-id")]
         public async Task<IActionResult> GetSkillById(int id)
         {
@@ -37,6 +40,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("can not show skill");
         }
+        [Authorize]
         [HttpGet("get-skills-by-student-id")]
         public async Task<IActionResult > GetStudentSkills(int StudentId)
         {
@@ -47,7 +51,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("can not show your skills");
         }
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSkill(int id,UpdateSkillDTO skillDTO)
         {
@@ -58,6 +62,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("can not update skill");
         }
+        [Authorize]
         [HttpDelete]
         public async Task<IActionResult> DeleteSkill(int id)
         {

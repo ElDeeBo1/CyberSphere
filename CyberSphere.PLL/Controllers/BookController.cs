@@ -1,5 +1,6 @@
 ﻿using CyberSphere.BLL.DTO.BookDTO;
 using CyberSphere.BLL.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,6 +38,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("theb error occuered");
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("add-book")]
         public IActionResult AddBook(CreateBookDTO bookDTO)
         {
@@ -47,6 +49,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("can not to be add book");
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         public IActionResult DeleteBook(int id)
         {
@@ -57,6 +60,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("can not to be able to delete book");
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
         public IActionResult UpdateBook(int id,[FromForm]UpdateBookDTO bookDTO)
         {

@@ -1,5 +1,6 @@
 ﻿using CyberSphere.BLL.DTO;
 using CyberSphere.BLL.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +16,7 @@ namespace CyberSphere.PLL.Controllers
         {
             this.progressService = progressService;
         }
-
+        [Authorize]
         [HttpGet("student/{studentId}")]
         public async Task<ActionResult<List<Progress_ModelDTO>>> GetStudentProgress(int studentId)
         {

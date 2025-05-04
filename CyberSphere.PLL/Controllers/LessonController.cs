@@ -2,6 +2,7 @@
 using CyberSphere.BLL.Services.Interface;
 using CyberSphere.DAL.Entities;
 using CyberSphere.DAL.Repo.Implementation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,6 +40,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("error in model state ....");    
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("add-lesson")]
         public IActionResult AddLesson(CreateLessonDTO creareLessonDTo)
         {
@@ -50,6 +52,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("can not be to create lesson");
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public IActionResult UpdateLesson(int id, [FromForm] UpdateLessonDTO lessonDTO)
         {
@@ -68,7 +71,7 @@ namespace CyberSphere.PLL.Controllers
         }
 
 
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         public IActionResult DeleteLesson(int id)
         {

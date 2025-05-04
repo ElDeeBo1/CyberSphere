@@ -1,5 +1,6 @@
 ﻿using CyberSphere.BLL.DTO.StudentDTO;
 using CyberSphere.BLL.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +16,9 @@ namespace CyberSphere.PLL.Controllers
         {
             this.studentService = studentService;
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet("get-all-students")]
+
         public async Task<IActionResult> GetAllStudents()
         {
             if(ModelState.IsValid)
@@ -38,6 +41,7 @@ namespace CyberSphere.PLL.Controllers
             return BadRequest("can not be able to show student");
 
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("add-student")]
         public async Task <IActionResult> AddStudent(AddStudentDTO studentDTO)
         {
@@ -49,7 +53,7 @@ namespace CyberSphere.PLL.Controllers
             return BadRequest("can not be able to add student");
 
         }
-
+        [Authorize]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateStudent(int id, [FromForm] UpdateStudentDTO studentDTO)
         {
@@ -67,7 +71,7 @@ namespace CyberSphere.PLL.Controllers
 
             return Ok(updatedStudent);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         public async Task <IActionResult >DeleteStudent(int id)
         {

@@ -1,5 +1,6 @@
 ﻿using CyberSphere.BLL.DTO.LevelDTO;
 using CyberSphere.BLL.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,6 +36,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("can not show");
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult CreateLevel(CreateLevelDTO createLevelDTO)
         {
@@ -45,6 +47,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("can not be add level");
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
         public IActionResult UpdateLevel(int id,[FromForm] UpdateLevelDTO updateLevelDTO)
         {
@@ -58,6 +61,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("bad error");
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         public IActionResult DeleteLevel(int id)
         {
