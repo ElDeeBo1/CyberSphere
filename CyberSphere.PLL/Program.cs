@@ -1,4 +1,4 @@
-
+﻿
 using CyberSphere.BLL.Mapping;
 using CyberSphere.BLL.Services.Implementation;
 using CyberSphere.BLL.Services.Implenentation;
@@ -13,20 +13,42 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using CyberSphere.BLL.Helper;
 using System.Text;
 namespace CyberSphere.PLL   
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task /*void*/ Main(string[] args)
         {
+
+
+          //  logs
+
+            //Directory.CreateDirectory("Logs"); // تأكد من وجود المجلد
+
+            //Log.Logger = new LoggerConfiguration()
+            //    .WriteTo.File(
+            //        path: "Logs/log-.txt",
+            //        rollingInterval: RollingInterval.Day,
+            //        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}"
+            //    )
+            //    .CreateLogger();
+
+            //var builder = WebApplication.CreateBuilder(args);
+
+            //builder.Host.UseSerilog(); // استخدم Serilog بدلاً من الـ Logger الافتراضي
+
+
+
             var builder = WebApplication.CreateBuilder(args);
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
             // Add services to the container.
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -118,14 +140,14 @@ namespace CyberSphere.PLL
 
             builder.Services.AddSwaggerGen(swagger =>
             {
-                //This�is�to�generate�the�Default�UI�of�Swagger�Documentation����
+                //This is to generate the Default UI of Swagger Documentation    
                 swagger.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "Cyber Sphere�Web�API",
+                    Title = "Cyber Sphere Web API",
                     Description = " Cyber Acadmy"
                 });
-                //�To�Enable�authorization�using�Swagger�(JWT)����
+                // To Enable authorization using Swagger (JWT)    
                 swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Name = "Authorization",
@@ -133,7 +155,7 @@ namespace CyberSphere.PLL
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "Enter�'Bearer'�[space]�and�then�your�valid�token�in�the�text�input�below.\r\n\r\nExample:�\"Bearer�eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\"",
+                    Description = "Enter 'Bearer' [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\"",
                 });
                 swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
@@ -164,13 +186,32 @@ namespace CyberSphere.PLL
                    );
 
             var app = builder.Build();
+            // Seed admin user and role here
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var config = services.GetRequiredService<IConfiguration>();
+                try
+                {
+                    await IdentitySeedData.SeedAdminUser(services, config);
+                    Console.WriteLine($"[Program.cs] Admin Email from config: {config["AdminUser:Email"]}");
+                }
+                catch (Exception ex)
+                {
+                    // Log exception or handle errors here
+                    Console.WriteLine($"Error seeding admin user: {ex.Message}");
+                }
+            }
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseDeveloperExceptionPage();
             }
+            app.UseSwagger();
+                app.UseSwaggerUI();
+         
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();
@@ -182,7 +223,15 @@ namespace CyberSphere.PLL
 
             app.MapControllers();
 
-            app.Run();
+            try
+            {
+                app.Run();
+            }
+            catch (Exception ex)
+            {
+                // مسار نسبي، هيحفظ الملف بجانب الملفات المنشورة (داخل wwwroot مثلاً)
+                File.WriteAllText("wwwroot/error_log.txt", ex.ToString());
+            }
         }
     }
 }
