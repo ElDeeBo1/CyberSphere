@@ -14,6 +14,7 @@ namespace CyberSphere.DAL.Repo.Interface
        Task <Student> GetStudentById(int id);
       Task < List<Student>> GetAllStudents();
        Task <bool> DeleteStudent(Student student);
+        Task<Student?> GetStudentByUserId(string userId);
 
 
     }

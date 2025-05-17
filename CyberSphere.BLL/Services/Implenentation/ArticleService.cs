@@ -17,7 +17,7 @@ namespace CyberSphere.BLL.Services.Implenentation
         private readonly IArticleRepo articleRepo;
         private readonly IMapper mapper;
 
-        public ArticleService(IArticleRepo articleRepo, IMapper mapper)
+        public ArticleService(IArticleRepo articleRepo, IMapper mapper,FileHelper fileHelper)
         {
             this.articleRepo = articleRepo;
             this.mapper = mapper;
@@ -31,7 +31,7 @@ namespace CyberSphere.BLL.Services.Implenentation
             {
                 if (articleDTO.ImageFile != null)
                 {
-                    articleDTO.Image = FileHelper.UploadFile("Article_Img", articleDTO.ImageFile);
+                    articleDTO.Image = Helper.FileHelper.UploadFile("Article_Img", articleDTO.ImageFile);
 
                 }
                 var articleEntity = mapper.Map<Article>(articleDTO);
@@ -112,7 +112,7 @@ namespace CyberSphere.BLL.Services.Implenentation
 
             if (articleDTO.ImageFile != null)
             {
-                existingArticle.ImgURL = FileHelper.SaveImage(articleDTO.ImageFile);
+                existingArticle.ImgURL = Helper.FileHelper.SaveImage(articleDTO.ImageFile);
             }
 
             var updatedArticle = articleRepo.Update(id, existingArticle);

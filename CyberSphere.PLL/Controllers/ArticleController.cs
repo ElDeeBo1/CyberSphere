@@ -23,11 +23,12 @@ namespace CyberSphere.PLL.Controllers
             if (ModelState.IsValid)
 
             {
+                Console.WriteLine($"ImageFile is null? {articleDTO.ImageFile == null}");
                 var article = articleService.CreateArticle(articleDTO);
                 return Ok(article);
 
             }
-            //ModelState.AddModelError("", "cannot create article");
+
             return BadRequest("cannot create article");
 
         }
@@ -56,18 +57,15 @@ namespace CyberSphere.PLL.Controllers
         }
         [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]     
-        //[Consumes("multipart/form-data")]
+
         public IActionResult UpdateArticle(int id, [FromForm] UpdateArticleDTO updateArticleDTO)
         {
             if (ModelState.IsValid)
             {
-                //if (updateArticleDTO.Id == id)
-                //{
+              
                     var updated = articleService.UpdateArticle(id,updateArticleDTO);
                     return Ok(updated);
-                //}
-
-            //return BadRequest("Error updated");
+        
             }
             return BadRequest("!!!!!!!!!!Error!!!!!!");
         }

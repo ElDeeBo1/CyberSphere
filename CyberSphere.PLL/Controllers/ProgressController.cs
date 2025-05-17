@@ -1,4 +1,5 @@
 ﻿using CyberSphere.BLL.DTO;
+using CyberSphere.BLL.Services.Implenentation;
 using CyberSphere.BLL.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -26,6 +27,13 @@ namespace CyberSphere.PLL.Controllers
                 return NotFound("No progress found for this student.");
             }
             return Ok(progress);
+        }
+
+        [HttpPost("complete-course")]
+        public async Task<IActionResult> CompleteCourse([FromQuery] int studentId, [FromQuery] int courseId)
+        {
+            await progressService.ForceCompleteCourseAsync(studentId, courseId);
+            return Ok(new { message = "Course marked as completed successfully." });
         }
     }
 

@@ -28,7 +28,7 @@ namespace CyberSphere.PLL.Controllers
             }
             return BadRequest("can not view");
         }
-        [Authorize(Roles = "Admin")]
+       [Authorize(Roles = "Admin")]
         [HttpPost("add-course")]
         public IActionResult CreateCourse(CreateCourseDTO courseDTO)
         {

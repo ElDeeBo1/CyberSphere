@@ -119,5 +119,9 @@ namespace CyberSphere.BLL.Services.Implenentation
             var updated = await studentRepo.UpdateStudent(id, existedstudent);
             return Mapper.Map<UpdateStudentDTO>(updated);
         }
+        public async Task<Student?> GetStudentByUserId(string userId)
+        {
+            return await studentRepo.GetStudentByUserId(userId);
+        }
     }
 }

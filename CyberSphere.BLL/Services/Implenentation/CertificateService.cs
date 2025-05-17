@@ -92,7 +92,7 @@ namespace CyberSphere.BLL.Services.Implenentation
         //    await certificateRepo.CreateCertificate(certificate);
 
 
-        public async Task CheckAndGenerateCertificate(int studentId, int courseId)
+            public async Task CheckAndGenerateCertificate(int studentId, int courseId)
         {
             // 1. التحقق من وجود تقدم للطالب في الكورس المحدد
             var progress = await progressRepo.GetProgress(studentId, courseId);
@@ -101,21 +101,6 @@ namespace CyberSphere.BLL.Services.Implenentation
                 // الكورس غير مكتمل أو لا يوجد تقدم
                 return;
             }
-
-            // 2. التحقق من وجود الشهادة بالفعل
-            //var exist = await certificateRepo.CertificateExists(studentId, courseId);
-            //if (exist)
-            //{
-            //    // الشهادة موجودة بالفعل
-            //    return;
-            //}
-
-            //// 3. التحقق من أن الـ ProgressId موجود بشكل صحيح
-            //if (progress.Id == 0)
-            //{
-            //    // في حالة إذا كان الـ ProgressId غير صالح أو مفقود
-            //    throw new Exception("Progress record is not valid or missing.");
-            //}
 
             // 4. توليد الشهادة
             string certificatePath = await pdfGeneratorService.GenerateCertificate(progress.Student, progress.Course);
@@ -138,7 +123,7 @@ namespace CyberSphere.BLL.Services.Implenentation
             string emailBody = $"Dear {progress.Student.FirstName},\n\n" +
                 $"Congratulations on completing the {progress.Course.Title} course! 🎓\n\n" +
                 $"You can download your certificate from the link below:\n" +
-                $"[Download Certificate](https://localhost:7089/{certificatePath})\n\n" +
+                $"[Download Certificate](https://cybersphere7.runasp.net/{certificatePath})\n\n" +
                 $"Best regards,\nCyberSphere Team";
 
             await emailSender.SendEmailAsync(progress.Student.User.Email, emailSubject, emailBody);

@@ -18,27 +18,6 @@ namespace CyberSphere.DAL.Repo.Implementation
         {
             this.dbContext = dbContext;
         }
-        //public async Task<Progress> GetProgress(int _studentId, int _courseId)
-        //{
-        //    return await dbContext.Progresss
-        //        .Include(p=>p.Student).Include(p=>p.Course)
-        //        .FirstOrDefaultAsync(p => p.StudentId == _studentId && p.CourseId == _courseId);
-        //}
-
-        //public void UpdateProgress(Progress progress)
-        //{
-        //    dbContext.Progresss.Update(progress);
-        //    dbContext.SaveChanges();
-
-        //}
-        //public async Task<List<Progress>> GetStudentCoursesProgress(int studentId)
-        //{
-        //    return await dbContext.Progresss
-        //        .Where(p => p.StudentId == studentId && p.LessonId == null) // فقط تقدم الكورسات
-        //        .Include(p => p.Course) // جلب بيانات الكورس
-        //        .AsNoTracking()
-        //        .ToListAsync();
-        //}
 
 
         public async Task<List<Progress>> GetStudentCoursesProgress(int studentId)
@@ -51,12 +30,7 @@ namespace CyberSphere.DAL.Repo.Implementation
         }
 
 
-        //public async Task<Progress> GetProgress(int studentId, int courseId)
-        //{
-        //    return await dbContext.Progresss
-        //        .Where(p => p.StudentId == studentId && p.CourseId == courseId)
-        //        .FirstOrDefaultAsync();
-        //}
+
         public async Task<Progress> GetProgress(int studentId, int courseId)
         {
             return await dbContext.Progresss
@@ -74,8 +48,25 @@ namespace CyberSphere.DAL.Repo.Implementation
         }
 
 
+
+        public async Task<List<Lesson>> GetCourseLessons(int courseId)
+        {
+            return await dbContext.Lessons
+                .Where(l => l.CourseId == courseId)
+                .ToListAsync();
+        }
         public async Task UpdateProgress(int studentId, int courseId, int lessonId, double completionPercentage)
         {
+            // تحقق من أن الدرس موجود
+            if (lessonId != 0)
+            {
+                var lessonExists = await dbContext.Lessons.AnyAsync(l => l.Id == lessonId && l.CourseId == courseId);
+                if (!lessonExists)
+                {
+                    throw new ArgumentException("The lesson ID is invalid or does not belong to the specified course.");
+                }
+            }
+
             var progress = await dbContext.Progresss
                 .FirstOrDefaultAsync(p => p.StudentId == studentId && p.CourseId == courseId && p.LessonId == lessonId);
 
@@ -100,15 +91,14 @@ namespace CyberSphere.DAL.Repo.Implementation
                 .Where(l => l.CourseId == courseId)
                 .CountAsync();
 
-            if (allLessons > 0) // ⬅️ منع القسمة على الصفر
+            if (allLessons > 0)
             {
                 int completedLessons = await dbContext.Progresss
-                    .Where(p => p.StudentId == studentId && p.CourseId == courseId && p.CompletionPercentage >= 100)
+                    .Where(p => p.StudentId == studentId && p.CourseId == courseId && p.CompletionPercentage >= 100 && p.LessonId != null)
                     .CountAsync();
 
                 double overallCompletion = (completedLessons / (double)allLessons) * 100;
 
-                // ✅ تحديث السجل العام لتقدم الكورس
                 var courseProgress = await dbContext.Progresss
                     .FirstOrDefaultAsync(p => p.StudentId == studentId && p.CourseId == courseId && p.LessonId == null);
 
@@ -118,6 +108,7 @@ namespace CyberSphere.DAL.Repo.Implementation
                     {
                         StudentId = studentId,
                         CourseId = courseId,
+                        LessonId = null,
                         CompletionPercentage = overallCompletion
                     };
                     await dbContext.Progresss.AddAsync(courseProgress);
@@ -126,6 +117,29 @@ namespace CyberSphere.DAL.Repo.Implementation
                 {
                     courseProgress.CompletionPercentage = overallCompletion;
                 }
+            }
+
+            await dbContext.SaveChangesAsync();
+        }
+        public async Task ForceCompleteCourseAsync(int studentId, int courseId)
+        {
+            var progress = await dbContext.Progresss
+                .FirstOrDefaultAsync(p => p.StudentId == studentId && p.CourseId == courseId && p.LessonId == null);
+
+            if (progress == null)
+            {
+                progress = new Progress
+                {
+                    StudentId = studentId,
+                    CourseId = courseId,
+                    LessonId = null,
+                    CompletionPercentage = 100
+                };
+                await dbContext.Progresss.AddAsync(progress);
+            }
+            else
+            {
+                progress.CompletionPercentage = 100;
             }
 
             await dbContext.SaveChangesAsync();

@@ -45,7 +45,7 @@ namespace CyberSphere.BLL.Helper
             }
         }
 
-            public static string DeleteFile(string folderName, string? fileName)
+        public static string DeleteFile(string folderName, string? fileName)
         {
             if (fileName is not null) return "No file match file name";
             try

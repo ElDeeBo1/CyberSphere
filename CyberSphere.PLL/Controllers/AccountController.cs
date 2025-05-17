@@ -4,7 +4,10 @@ using CyberSphere.BLL.DTO.StudentDTO;
 using CyberSphere.BLL.Services.Interface;
 using CyberSphere.DAL.Database;
 using CyberSphere.DAL.Entities;
+using CyberSphere.DAL.Repo.Implementation;
 using FluentEmail.Core;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
@@ -33,8 +36,9 @@ namespace CyberSphere.PLL.Controllers
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IEmailSender emailSender;
         private readonly IStudentService studentservice;
+        private readonly IStudentService studentService;
 
-        public AccountController(IServiceScopeFactory serviceScopeFactory,IMapper mapper,UserManager<ApplicationUser> userManager, IConfiguration config, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender,IStudentService studentservice )
+        public AccountController(IServiceScopeFactory serviceScopeFactory,IMapper mapper,UserManager<ApplicationUser> userManager, IConfiguration config, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender,IStudentService studentservice,IStudentService studentService )
         {
             this.serviceScopeFactory = serviceScopeFactory;
             this.mapper = mapper;
@@ -44,6 +48,7 @@ namespace CyberSphere.PLL.Controllers
             this.roleManager = roleManager;
             this.emailSender = emailSender;
             this.studentservice = studentservice;
+            this.studentService = studentService;
         }
         private string GetLoginedUserId()
         {
@@ -67,7 +72,7 @@ namespace CyberSphere.PLL.Controllers
                 {
                     try
                     {
-                        // ✅ 1. إنشاء المستخدم مباشرةً دون الحاجة للبحث عنه لاحقًا
+                    
                         var user = new ApplicationUser
                         {
                             Email = registerDTO.Email,
@@ -84,7 +89,7 @@ namespace CyberSphere.PLL.Controllers
                             return BadRequest(ModelState);
                         }
 
-                        // ✅ 2. إنشاء الطالب مباشرةً وربطه بالمستخدم
+                      
                         var studentEntity = new Student
                         {
                             FirstName = "",
@@ -94,22 +99,22 @@ namespace CyberSphere.PLL.Controllers
                             Address = "",
                             About = "",
                             ProfilePictureURL = null,
-                            UserId = user.Id // لا داعي لاستخدام FindByEmailAsync
+                            UserId = user.Id 
                         };
 
                         var studentDto = mapper.Map<AddStudentDTO>(studentEntity);
                         await scopedStudentService.AddStudent(studentDto);
 
-                        // ✅ 3. تمكين التحقق الثنائي
+                   
                         await userManager.SetTwoFactorEnabledAsync(user, true);
 
-                        // ✅ 4. إنشاء رابط تأكيد البريد الإلكتروني
+                     
                         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
                         var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = user.Email }, Request.Scheme, Request.Host.ToString());
 
-                        // ✅ 5. إرسال البريد الإلكتروني
+            
                         var subject = "Confirm your email";
-                        //  var message = $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Confirm Email</a>";
+      
                         var logoUrl = "https://i.postimg.cc/pV9hHqgm/cyberooo.png";
 
                         var message = $@"
@@ -133,7 +138,6 @@ namespace CyberSphere.PLL.Controllers
 
                         await emailSender.SendEmailAsync(user.Email, subject, message);
 
-                        // ✅ 6. حفظ كل العمليات في قاعدة البيانات دفعة واحدة
                         await transaction.CommitAsync();
 
                         return Ok($"We sent email confirmation to {user.Email} & User Created Successfully");
@@ -170,37 +174,40 @@ namespace CyberSphere.PLL.Controllers
                 ApplicationUser user = await userManager.FindByEmailAsync(Reqestuser.Email);
                 if (user != null)
                 {
-                    if (user.TwoFactorEnabled)
-                    {
-                        await signInManager.SignOutAsync();
-                        await signInManager.PasswordSignInAsync(user, Reqestuser.Password, false, true);
-                        var tokenConfirm = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
-                          var logoUrl = "https://i.postimg.cc/pV9hHqgm/cyberooo.png";
-                        var subject = "Your OTP Code";
-                        var message = $@"
-<div style='font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 30px;'>
-    <div style='max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);'>
-        <div style='text-align: center; margin-bottom: 20px;'>
-            <img src='{logoUrl}' alt='Logo' style='max-width: 150px;' />
-        </div>
-        <h2 style='text-align: center; color: #333;'>Your OTP Code</h2>
-        <p>Hi <strong>{user.UserName}</strong>,</p>
-        <p>Your One-Time Password (OTP) is:</p>
-        <div style='text-align: center; margin: 30px 0;'>
-            <div style='display: inline-block; background-color: #007bff; color: white; padding: 15px 25px; font-size: 20px; border-radius: 8px; letter-spacing: 3px; font-weight: bold;'>
-                {tokenConfirm}
-            </div>
-        </div>
-        <p>Please enter this code to complete your verification process.</p>
-        <p style='font-size: 12px; color: #888;'>If you didn't request this, you can safely ignore the email.</p>
-    </div>
-</div>";
-                        await emailSender.SendEmailAsync(user.Email, subject, message);
-                        return Ok($"We have send otp to your email{user.Email}");
-                    }
                     bool found = await userManager.CheckPasswordAsync(user, Reqestuser.Password);
                     if (found)
-                    {
+                    { 
+
+                        //otp
+                        //if (user.TwoFactorEnabled)
+                        //{
+                        await signInManager.SignOutAsync();
+                        await signInManager.PasswordSignInAsync(user, Reqestuser.Password, false, true);
+//                        var tokenConfirm = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
+//                          var logoUrl = "https://i.postimg.cc/pV9hHqgm/cyberooo.png";
+//                        var subject = "Your OTP Code";
+//                        var message = $@"
+//<div style='font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 30px;'>
+//    <div style='max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);'>
+//        <div style='text-align: center; margin-bottom: 20px;'>
+//            <img src='{logoUrl}' alt='Logo' style='max-width: 150px;' />
+//        </div>
+//        <h2 style='text-align: center; color: #333;'>Your OTP Code</h2>
+//        <p>Hi <strong>{user.UserName}</strong>,</p>
+//        <p>Your One-Time Password (OTP) is:</p>
+//        <div style='text-align: center; margin: 30px 0;'>
+//            <div style='display: inline-block; background-color: #007bff; color: white; padding: 15px 25px; font-size: 20px; border-radius: 8px; letter-spacing: 3px; font-weight: bold;'>
+//                {tokenConfirm}
+//            </div>
+//        </div>
+//        <p>Please enter this code to complete your verification process.</p>
+//        <p style='font-size: 12px; color: #888;'>If you didn't request this, you can safely ignore the email.</p>
+//    </div>
+//</div>";
+//                        await emailSender.SendEmailAsync(user.Email, subject, message);
+//                        return Ok($"We have send otp to your email{user.Email}");
+//                    }
+                 
 
                         List<Claim> UserClaims = new List<Claim>();
                         UserClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
@@ -270,12 +277,21 @@ namespace CyberSphere.PLL.Controllers
                         );
 
 
+                    //return Ok(new
+                    //{
+                    //    token = new JwtSecurityTokenHandler().WriteToken(mytoken),
+                    //    expiration = DateTime.Now.AddHours(24)
+
+                    //});
+                    var student = await studentService.GetStudentByUserId(user.Id); // تأكد أن لديك هذه الدالة في الريبو
+                    int? studentId = student?.Id;
+
                     return Ok(new
                     {
                         token = new JwtSecurityTokenHandler().WriteToken(mytoken),
-                        expiration = DateTime.Now.AddHours(2)
+                        expiration = DateTime.Now.AddHours(2),
+                        studentId = studentId // ✅ تضمين StudentId في الإخراج
                     });
-
                 }
             }
             return BadRequest("InValid Code");
@@ -386,19 +402,28 @@ namespace CyberSphere.PLL.Controllers
         [HttpGet("facebook-login")]
         public IActionResult FacebookLogin()
         {
-            var RedirectURL = Url.Action(nameof(FaceBookResponse), "Account", null, Request.Scheme);
-            var properities = signInManager.ConfigureExternalAuthenticationProperties(FacebookDefaults.AuthenticationScheme, RedirectURL);
-            return Challenge(properities, FacebookDefaults.AuthenticationScheme);
+            var redirectUrl = Url.Action(nameof(FacebookResponse), "Account", null, Request.Scheme);
+            var properties = signInManager.ConfigureExternalAuthenticationProperties(FacebookDefaults.AuthenticationScheme, redirectUrl);
+
+            // ✅ Force Facebook to re-prompt for login
+            properties.Items["auth_type"] = "reauthenticate"; // يطلب تسجيل الدخول من جديد
+
+            return Challenge(properties, FacebookDefaults.AuthenticationScheme);
         }
+
+
+ 
+
         [HttpGet("facebook-response")]
-        public async Task<IActionResult> FaceBookResponse()
+        public async Task<IActionResult> FacebookResponse()
         {
-            var Info = await signInManager.GetExternalLoginInfoAsync();
-            if (Info == null)
-            {
-                return BadRequest("Facebook Authentication Failed");
-            }
-            var email = Info.Principal.FindFirstValue(ClaimTypes.Email);
+            var info = await signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+                return Redirect("/login?error=FacebookAuthFailed");
+
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(email))
+                return Redirect("/login?error=NoEmailInClaims");
 
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
@@ -408,29 +433,83 @@ namespace CyberSphere.PLL.Controllers
                     UserName = email,
                     Email = email
                 };
-                await userManager.CreateAsync(user);
-                await userManager.AddLoginAsync(user, Info);
+
+                var createResult = await userManager.CreateAsync(user);
+                if (!createResult.Succeeded)
+                    return Redirect("/login?error=UserCreationFailed");
+
+                var addLoginResult = await userManager.AddLoginAsync(user, info);
+                if (!addLoginResult.Succeeded)
+                    return Redirect("/login?error=LoginLinkFailed");
             }
-            await signInManager.SignInAsync(user, isPersistent: false);
-            return Ok(new { message = "Facebook Login Successful", user.Email });
+
+            // JWT Claims
+            var userClaims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.Email, user.Email)
+    };
+
+            var roles = await userManager.GetRolesAsync(user);
+            foreach (var role in roles)
+            {
+                userClaims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: config["JWT:issuerIP"],
+                audience: config["JWT:audienceIP"],
+                claims: userClaims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: creds
+            );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            var student = await studentService.GetStudentByUserId(user.Id);
+            int? studentId = student?.Id;
+
+            return Redirect($"https://cybersphere7.runasp.net/Swagger/index.html?token={jwt}&studentId={studentId}");
+
         }
 
+
+       
         [HttpGet("google-login")]
         public IActionResult GoogleLogin()
         {
-            var RedirectURL = Url.Action(nameof(GoogleResponse), "Account", null, Request.Scheme);
-            var properities = signInManager.ConfigureExternalAuthenticationProperties(GoogleDefaults.AuthenticationScheme, RedirectURL);
-            return Challenge(properities, GoogleDefaults.AuthenticationScheme);
+            var redirectUrl = Url.Action(nameof(GoogleResponse), "Account", null, Request.Scheme);
+            var properties = signInManager.ConfigureExternalAuthenticationProperties(
+                GoogleDefaults.AuthenticationScheme,
+                redirectUrl
+            );
+
+         
+            properties.Items["prompt"] = "select_account";
+
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
+
+
+  
+
         [HttpGet("google-response")]
         public async Task<IActionResult> GoogleResponse()
         {
-            var Info = await signInManager.GetExternalLoginInfoAsync();
-            if (Info == null)
+            var info = await signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
             {
-                return BadRequest("Google Authentication Failed");
+                return Redirect("/login?error=GoogleAuthFailed");
             }
-            var email = Info.Principal.FindFirstValue(ClaimTypes.Email);
+
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(email))
+            {
+                return Redirect("/login?error=NoEmailInClaims");
+            }
 
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
@@ -440,12 +519,53 @@ namespace CyberSphere.PLL.Controllers
                     UserName = email,
                     Email = email
                 };
-                await userManager.CreateAsync(user);
-                await userManager.AddLoginAsync(user, Info);
+                var createResult = await userManager.CreateAsync(user);
+                if (!createResult.Succeeded)
+                {
+                    return Redirect("/login?error=UserCreationFailed");
+                }
+
+                var addLoginResult = await userManager.AddLoginAsync(user, info);
+                if (!addLoginResult.Succeeded)
+                {
+                    return Redirect("/login?error=LoginLinkFailed");
+                }
             }
-            await signInManager.SignInAsync(user, isPersistent: false);
-            return Ok(new { message = "Google Login Successful", user.Email });
+
+            var userClaims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.Email, user.Email)
+    };
+
+            var roles = await userManager.GetRolesAsync(user);
+            foreach (var role in roles)
+            {
+                userClaims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: config["JWT:issuerIP"],
+                audience: config["JWT:audienceIP"],
+                claims: userClaims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: creds
+            );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            var student = await studentService.GetStudentByUserId(user.Id);
+            int? studentId = student?.Id;
+
+            
+            return Redirect($"https://cybersphere7.runasp.net/Swagger/index.html?token={jwt}&studentId={studentId}");
         }
+
+
 
         [Authorize]
         [HttpPost("change-password")]

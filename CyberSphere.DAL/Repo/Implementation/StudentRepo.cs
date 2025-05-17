@@ -109,5 +109,11 @@ namespace CyberSphere.DAL.Repo.Implementation
                 throw;
             }
         }
+        public async Task<Student?> GetStudentByUserId(string userId)
+        {
+            return await dbContext.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.User.Id == userId);
+        }
     }
 }

@@ -86,6 +86,7 @@ namespace CyberSphere.PLL
 
             builder.Services.AddScoped<ISkillRepo, SkillRepo>();
             builder.Services.AddScoped<ISkillService, SkillService>();
+            builder.Services.AddScoped<FileHelper>();
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -101,7 +102,8 @@ namespace CyberSphere.PLL
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
+            }).AddCookie()
+                .AddJwtBearer(options =>
             {
 
                 options.SaveToken = true;

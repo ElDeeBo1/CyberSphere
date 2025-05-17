@@ -10,13 +10,14 @@ namespace CyberSphere.DAL.Repo.Interface
 {
     public interface IProgressRepo
     {
-        //Task<Progress> GetProgress(int _studentId, int _courseId);
-        //void UpdateProgress(Progress progress);
-
+     
         Task<Progress> GetProgress(int studentId, int courseId);
         Task<List<Progress>> GetStudentCourseLessonsProgress(int studentId, int courseId);
         Task UpdateProgress(int studentId, int courseId, int lessonId, double completionPercentage);
         Task<List<Progress>> GetStudentCoursesProgress(int studentId);
+        Task<List<Lesson>> GetCourseLessons(int courseId);
+
+        Task ForceCompleteCourseAsync(int studentId, int courseId);
 
 
     }
